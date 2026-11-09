@@ -1,0 +1,6 @@
+{
+  "name": "Juggler AI v18.9.4",
+  "description": "Sovereign frontier AI architecture for Android with real-time 2026 web search grounding, anti-hallucination verification, Pollinations AI image studio, and distributed swarm mesh.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

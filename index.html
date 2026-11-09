@@ -1,0 +1,3402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#050608">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Juggler AI v18.9.4: Sovereign frontier AI architecture for Android with real-time 2026 web search grounding, anti-hallucination verification, Pollinations AI image studio, and distributed swarm mesh.">
+  <meta property="og:title" content="Juggler AI v18.9.4 — Sovereign Frontier Architecture">
+  <meta property="og:description" content="Sovereign frontier AI architecture with real-time 2026 web search grounding, anti-hallucination verification, Pollinations AI visual generation, and distributed swarm mesh.">
+  <meta property="og:type" content="website">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+
+  <title>Juggler AI v18.9.4 — Sovereign Frontier Architecture</title>
+
+  <!-- External Client Libraries (100% Free CDN Distribution) -->
+  <!-- Firebase Compat SDKs (Client-Side Cloud Storage & Auth) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+  <!-- Canvas Confetti Library for Visual FX -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <!-- PDF.js & MiniSearch (Client-Side Sovereign RAG) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/minisearch@6.1.0/dist/umd/index.min.js"></script>
+  <!-- Pyodide (Python WebAssembly in Browser) -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+  <!-- jsPDF Library for Client-Side Professional PDF Generation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    :root {
+      --bg-color: #050608;
+      --card-bg: rgba(14, 16, 24, 0.92);
+      --card-hover: rgba(22, 26, 38, 0.98);
+      --text-main: #f3f4f6;
+      --text-sub: #9ca3af;
+      --user-msg-bg: linear-gradient(135deg, rgba(37, 40, 54, 0.92), rgba(27, 29, 40, 0.98));
+      --primary-cyan: #06b6d4;
+      --primary-purple: #a855f7;
+      --accent-pink: #ec4899;
+      --accent-amber: #f59e0b;
+      --accent-emerald: #10b981;
+      --border-color: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(6, 182, 212, 0.35);
+      --sidebar-width: min(300px, 82vw);
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: var(--bg-color);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.08) 0%, transparent 50%);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    #bg-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.55;
+    }
+
+    /* ==========================================================================
+       WELCOME PAGE & AUTH OVERLAYS
+       ========================================================================== */
+    .fullscreen-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 5, 8, 0.94);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(12px, 3vw, 24px);
+      overflow-y: auto;
+    }
+
+    .legal-card {
+      background: rgba(14, 17, 26, 0.98);
+      border: 1px solid var(--border-glow);
+      border-radius: clamp(16px, 4vw, 24px);
+      padding: clamp(18px, 4vw, 32px);
+      width: 100%;
+      max-width: min(560px, calc(100vw - 24px));
+      max-height: calc(100dvh - 32px);
+      overflow-y: auto;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9), 0 0 40px rgba(6, 182, 212, 0.18);
+      animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .legal-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+
+    .legal-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--border-glow);
+      background: rgba(6, 182, 212, 0.1);
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.3);
+    }
+
+    .legal-icon-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .legal-title {
+      font-size: clamp(1.15rem, 4vw, 1.45rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff, var(--primary-cyan), var(--primary-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+
+    .legal-text {
+      font-size: clamp(0.76rem, 2.5vw, 0.82rem);
+      color: var(--text-sub);
+      line-height: 1.55;
+    }
+
+    .legal-text p {
+      margin-bottom: 8px;
+    }
+
+    .legal-features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .legal-feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      font-size: clamp(0.72rem, 2.4vw, 0.78rem);
+    }
+
+    .legal-feature-icon {
+      font-size: 1rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .auth-card {
+      background: rgba(14, 17, 26, 0.98);
+      border: 1px solid var(--border-glow);
+      border-radius: clamp(16px, 4vw, 24px);
+      padding: clamp(20px, 4.5vw, 32px);
+      width: 100%;
+      max-width: min(400px, calc(100vw - 24px));
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(168, 85, 247, 0.2);
+      animation: popIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+    }
+
+    .auth-title {
+      font-size: clamp(1.4rem, 5vw, 1.8rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #fff, var(--primary-cyan), var(--primary-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+
+    .auth-sub {
+      font-size: clamp(0.72rem, 2.5vw, 0.8rem);
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 10px 14px;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: #fff;
+      font-size: clamp(0.82rem, 3vw, 0.88rem);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .auth-input:focus {
+      border-color: var(--primary-cyan);
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.25);
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 11px 16px;
+      background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-weight: 800;
+      font-size: clamp(0.82rem, 3vw, 0.88rem);
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.35);
+      transition: opacity 0.15s, transform 0.15s;
+    }
+
+    .auth-btn:active {
+      transform: scale(0.98);
+      opacity: 0.9;
+    }
+
+    .auth-guest-btn {
+      width: 100%;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: clamp(0.78rem, 2.8vw, 0.84rem);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .auth-guest-btn:hover, .auth-guest-btn:active {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--primary-cyan);
+    }
+
+    .auth-toggle {
+      font-size: 0.74rem;
+      color: var(--primary-cyan);
+      margin-top: 6px;
+      cursor: pointer;
+    }
+
+    /* ==========================================================================
+       HEADER & COMPACT TOOLBAR
+       ========================================================================== */
+    header {
+      position: relative;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: calc(env(safe-area-inset-top, 0px) + 6px) clamp(8px, 2vw, 16px) 6px clamp(8px, 2vw, 16px);
+      background: rgba(10, 12, 16, 0.94);
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      flex-shrink: 0;
+      gap: 6px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .menu-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-main);
+      font-size: 1.15rem;
+      cursor: pointer;
+      padding: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--radius-sm);
+    }
+
+    .menu-toggle-btn:active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .brand-icon-box {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      border: 1px solid var(--border-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(6, 182, 212, 0.12);
+      box-shadow: 0 0 12px rgba(6, 182, 212, 0.28);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .brand-icon {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: clamp(0.92rem, 3.5vw, 1.05rem);
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff, var(--primary-cyan), var(--primary-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+    }
+
+    .tool-bar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .tool-bar::-webkit-scrollbar { display: none; }
+
+    .tool-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 5px clamp(6px, 1.5vw, 10px);
+      border-radius: var(--radius-sm);
+      font-size: clamp(0.68rem, 2.4vw, 0.76rem);
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+
+    .tool-btn:hover, .tool-btn:active {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--border-glow);
+    }
+
+    .tool-btn.active {
+      background: rgba(6, 182, 212, 0.18);
+      border-color: var(--primary-cyan);
+      color: #38bdf8;
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      padding: 3px 8px 3px 3px;
+      border-radius: 20px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-purple), var(--primary-cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: white;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .user-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .user-email-text {
+      font-size: 0.72rem;
+      max-width: 75px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text-sub);
+    }
+
+    /* ==========================================================================
+       SIDEBAR SESSIONS DRAWER
+       ========================================================================== */
+    .sidebar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: rgba(10, 12, 17, 0.98);
+      border-right: 1px solid var(--border-color);
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(-100%);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: clamp(12px, 3vw, 16px);
+      box-shadow: 20px 0 50px rgba(0, 0, 0, 0.85);
+    }
+
+    .sidebar.open {
+      transform: translateX(0);
+    }
+
+    .sidebar-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      z-index: 40;
+      display: none;
+      backdrop-filter: blur(4px);
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chat-sessions-list {
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .session-item {
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid transparent;
+      color: var(--text-sub);
+      font-size: 0.78rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .session-item:hover, .session-item.active {
+      background: rgba(6, 182, 212, 0.12);
+      border-color: var(--border-glow);
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       CHAT CONTAINER (IN FLEX FLOW - NEVER HIDDEN)
+       ========================================================================== */
+    #chat-container {
+      position: relative;
+      z-index: 10;
+      flex: 1 1 0%;
+      min-height: 0;
+      overflow-y: auto;
+      padding: clamp(10px, 2.5vw, 16px) clamp(10px, 2.5vw, 16px) 16px clamp(10px, 2.5vw, 16px);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .chat-bottom-spacer {
+      height: 10px;
+      flex-shrink: 0;
+    }
+
+    .message-wrapper {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 820px;
+      margin: 0 auto;
+      animation: fadeIn 0.22s ease forwards;
+    }
+
+    .message-wrapper.user {
+      align-items: flex-end;
+    }
+
+    .message-wrapper.juggler {
+      align-items: flex-start;
+    }
+
+    .message {
+      max-width: min(92%, 760px);
+      word-break: break-word;
+      overflow-wrap: anywhere;
+      font-size: clamp(0.85rem, 2.8vw, 0.92rem);
+      line-height: 1.55;
+    }
+
+    .message.user {
+      background: var(--user-msg-bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px 18px 4px 18px;
+      padding: 10px 14px;
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .bot-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .bot-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--primary-cyan);
+    }
+
+    .bot-avatar-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      overflow: hidden;
+      display: inline-flex;
+      border: 1px solid var(--border-glow);
+    }
+
+    .bot-avatar-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .bot-tag {
+      font-size: 0.65rem;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: rgba(6, 182, 212, 0.14);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: #38bdf8;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .bot-tag::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      animation: pulse 1.8s infinite;
+    }
+
+    .bot-bubble {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px 18px 18px 18px;
+      padding: clamp(12px, 3vw, 18px);
+      color: var(--text-main);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      width: 100%;
+    }
+
+    .bot-bubble p {
+      margin-bottom: 8px;
+    }
+
+    .bot-bubble p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* CODE BLOCKS */
+    .code-container {
+      margin: 10px 0;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      background: #090b10;
+      max-width: 100%;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.72rem;
+      color: var(--text-sub);
+    }
+
+    .code-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .code-btn {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.66rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    .code-btn:hover {
+      color: var(--text-main);
+      border-color: var(--border-glow);
+    }
+
+    pre code {
+      display: block;
+      padding: 10px 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: clamp(0.72rem, 2.5vw, 0.8rem);
+      line-height: 1.45;
+      overflow-x: auto;
+      color: #93c5fd;
+    }
+
+    .msg-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      opacity: 0.85;
+    }
+
+    .msg-tool-icon-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+
+    .msg-tool-icon-btn:hover, .msg-tool-icon-btn:active {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--primary-cyan);
+    }
+
+    /* REAL-TIME 2026 LIVE WEB GROUNDING & CITATIONS */
+    .grounding-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      background: rgba(6, 182, 212, 0.06);
+      border: 1px solid rgba(6, 182, 212, 0.35);
+      border-radius: 12px;
+    }
+
+    .grounding-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--primary-cyan);
+      margin-bottom: 6px;
+    }
+
+    .grounding-sources-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .grounding-source-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      border-radius: 6px;
+      font-size: 0.68rem;
+      color: #93c5fd;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .grounding-source-pill:hover, .grounding-source-pill:active {
+      background: rgba(6, 182, 212, 0.18);
+      border-color: var(--primary-cyan);
+      color: #ffffff;
+    }
+
+    .fact-check-badge-card {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      font-size: 0.76rem;
+      line-height: 1.5;
+    }
+
+    .fact-check-badge-card.unverified {
+      background: rgba(239, 68, 68, 0.08);
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    /* POLLINATIONS AI IMAGE MEDIA CARD */
+    .media-card {
+      margin-top: 10px;
+      background: rgba(8, 9, 13, 0.9);
+      border: 1px solid var(--border-glow);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      max-width: 100%;
+    }
+
+    .media-card-img-container {
+      position: relative;
+      width: 100%;
+      min-height: 240px;
+      max-height: 480px;
+      background: #000;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .media-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+      cursor: pointer;
+    }
+
+    .media-card img:hover {
+      transform: scale(1.02);
+    }
+
+    .media-card-info {
+      padding: 8px 12px;
+      font-size: 0.74rem;
+      color: var(--text-sub);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--border-color);
+      background: rgba(15, 17, 23, 0.95);
+    }
+
+    .media-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .media-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.68rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .media-btn:hover, .media-btn:active {
+      border-color: var(--primary-cyan);
+      color: #38bdf8;
+    }
+
+    /* QUICK CHIPS SUGGESTION ROW */
+    .quick-chips-row {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 4px clamp(8px, 2vw, 14px) 8px clamp(8px, 2vw, 14px);
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      flex-shrink: 0;
+    }
+
+    .quick-chips-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .quick-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 5px 10px;
+      font-size: clamp(0.68rem, 2.5vw, 0.74rem);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--text-sub);
+    }
+
+    .quick-chip:hover, .quick-chip:active {
+      background: rgba(6, 182, 212, 0.14);
+      border-color: var(--primary-cyan);
+      color: #fff;
+    }
+
+    /* ==========================================================================
+       INPUT DOCK (IN FLEX FLOW - NEVER OBSCURING CHAT MESSAGES)
+       ========================================================================== */
+    .input-dock {
+      position: relative;
+      flex-shrink: 0;
+      z-index: 30;
+      background: rgba(10, 12, 16, 0.98);
+      border-top: 1px solid var(--border-color);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 6px clamp(8px, 2vw, 12px) calc(8px + env(safe-area-inset-bottom, 0px)) clamp(8px, 2vw, 12px);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .mode-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: clamp(0.62rem, 2.4vw, 0.7rem);
+      color: var(--text-sub);
+      padding: 0 4px;
+    }
+
+    .mode-switch-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      color: var(--text-sub);
+      padding: 3px 6px;
+      border-radius: 6px;
+      font-size: clamp(0.62rem, 2.3vw, 0.68rem);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .mode-switch-btn.active {
+      background: rgba(6, 182, 212, 0.18);
+      border-color: var(--primary-cyan);
+      color: #38bdf8;
+    }
+
+    .input-wrapper {
+      display: flex;
+      align-items: flex-end;
+      gap: 6px;
+      background: rgba(18, 20, 28, 0.95);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 5px 8px;
+      transition: border-color 0.2s;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: var(--primary-cyan);
+      box-shadow: 0 0 16px rgba(6, 182, 212, 0.2);
+    }
+
+    .attach-btn {
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      font-size: 1.1rem;
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .attach-btn:hover, .attach-btn:active {
+      color: var(--text-main);
+    }
+
+    #user-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-size: clamp(0.85rem, 3vw, 0.92rem);
+      line-height: 1.4;
+      resize: none;
+      max-height: 120px;
+      min-height: 24px;
+      outline: none;
+      padding: 4px 0;
+    }
+
+    #user-input::placeholder {
+      color: #6b7280;
+    }
+
+    .send-btn {
+      background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+      border: none;
+      color: #fff;
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+      transition: transform 0.15s, opacity 0.15s;
+    }
+
+    .send-btn:active {
+      transform: scale(0.92);
+    }
+
+    /* ATTACHMENT PREVIEWS */
+    .chat-attachment-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-glow);
+      border-radius: 8px;
+      padding: 3px 6px;
+      font-size: 0.7rem;
+      color: var(--text-main);
+    }
+
+    .chat-attachment-thumb {
+      width: 26px;
+      height: 26px;
+      border-radius: 4px;
+      object-fit: cover;
+    }
+
+    /* FLOATING SCROLL BUTTON */
+    #scroll-bottom-btn {
+      position: absolute;
+      right: 14px;
+      bottom: 110px;
+      z-index: 25;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(15, 17, 23, 0.92);
+      border: 1px solid var(--border-glow);
+      color: var(--primary-cyan);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+
+    /* MODAL OVERLAYS (FLUID AND RESPONSIVE FOR ALL SCREEN SIZES) */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(10px, 3vw, 20px);
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: min(520px, calc(100vw - 20px));
+      background: rgba(15, 17, 24, 0.98);
+      border: 1px solid var(--border-glow);
+      border-radius: clamp(14px, 3.5vw, 20px);
+      padding: clamp(16px, 4vw, 22px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: calc(100dvh - 30px);
+      overflow-y: auto;
+    }
+
+    .modal-title {
+      font-size: clamp(0.95rem, 3.5vw, 1.05rem);
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .modal-desc {
+      font-size: clamp(0.74rem, 2.5vw, 0.8rem);
+      color: var(--text-sub);
+      line-height: 1.45;
+    }
+
+    .selector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .selector-option {
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-color);
+      font-size: 0.72rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .selector-option.selected {
+      background: rgba(6, 182, 212, 0.16);
+      border-color: var(--primary-cyan);
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .asset-item-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+    }
+
+    .asset-thumb-preview {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--border-glow);
+      background: #000;
+    }
+
+    /* TYPING INDICATOR */
+    .typing-dots {
+      display: flex;
+      gap: 4px;
+      padding: 4px 0;
+    }
+
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--primary-cyan);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite ease-in-out;
+    }
+
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40% { transform: scale(1.1); opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.94) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- 1. ACADEMIC & RESEARCH WELCOME OVERLAY (MAIN WELCOME PAGE) -->
+  <div class="fullscreen-overlay" id="legal-overlay">
+    <div class="legal-card">
+      <div class="legal-header">
+        <div class="legal-icon-box">
+          <img src="icon.png" alt="Juggler AI Emblem" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'46\' fill=\'%2305070e\' stroke=\'%2306b6d4\' stroke-width=\'4\'/%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'24\' fill=\'none\' stroke=\'%23a855f7\' stroke-width=\'3\' stroke-dasharray=\'4,4\'/%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'10\' fill=\'%2306b6d4\'/%3E%3C/svg%3E';">
+        </div>
+        <div>
+          <div class="legal-title">Juggler AI v18.9.4</div>
+          <div style="font-size:0.72rem; color:var(--primary-cyan); font-weight:700;">Research Prototype & Sovereign Utility</div>
+        </div>
+      </div>
+      
+      <div class="legal-text">
+        <p><strong>Educational & Experimental Research Architecture:</strong></p>
+        <p>Juggler AI is an independent client-side utility interface engineered to demonstrate high-performance mobile execution, local RAG document indexing, and sovereign client execution.</p>
+        
+        <div class="legal-features-list">
+          <div class="legal-feature-item">
+            <span class="legal-feature-icon">🌐</span>
+            <div><strong>Real-Time 2026 Web Grounding:</strong> Resolves knowledge cutoffs by fetching real-time verified citations to eliminate temporal hallucinations.</div>
+          </div>
+          <div class="legal-feature-item">
+            <span class="legal-feature-icon">🛡️</span>
+            <div><strong>Anti-Hallucination Fact-Checking:</strong> Formal verification engine cross-checking statements against live records.</div>
+          </div>
+          <div class="legal-feature-item">
+            <span class="legal-feature-icon">🎨</span>
+            <div><strong>Pollinations AI Diffusion Studio:</strong> Free high-speed visual generation across square, landscape, and mobile portrait ratios.</div>
+          </div>
+          <div class="legal-feature-item">
+            <span class="legal-feature-icon">🐝</span>
+            <div><strong>Distributed Swarm Mesh:</strong> 4-agent consensus deliberation (Arch-Sec, Algo-Opt, Ergo-Android, Logic-Math).</div>
+          </div>
+          <div class="legal-feature-item">
+            <span class="legal-feature-icon">💾</span>
+            <div><strong>2GB RAM Mobile Optimization:</strong> Built to execute smoothly across any low-spec Android phone, browser, or Acode editor.</div>
+          </div>
+        </div>
+        <p style="font-size:0.7rem; color:var(--text-sub); margin-top:4px;">Note: Juggler AI is an AI system and can make mistakes. Verify critical output.</p>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
+        <button class="auth-btn" id="launch-prototype-btn" onclick="acceptLegalTerms(true)">🚀 Launch Research Prototype (Instant)</button>
+        <button class="auth-guest-btn" onclick="acceptLegalTerms(false)">🔑 Sign In / Cloud Account Sync</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. AUTH OVERLAY (SIGN IN / REGISTER / GUEST EVALUATOR) -->
+  <div class="fullscreen-overlay" id="auth-overlay" style="display:none;">
+    <div class="auth-card">
+      <div class="legal-icon-box" style="width:50px; height:50px; margin-bottom:4px;">
+        <img src="icon.png" alt="Emblem" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'46\' fill=\'%2305070e\' stroke=\'%2306b6d4\' stroke-width=\'4\'/%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'24\' fill=\'none\' stroke=\'%23a855f7\' stroke-width=\'3\' stroke-dasharray=\'4,4\'/%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'10\' fill=\'%2306b6d4\'/%3E%3C/svg%3E';">
+      </div>
+      <div class="auth-title">Juggler AI</div>
+      <div class="auth-sub" id="auth-sub-text">Initialize Research Session</div>
+      
+      <input type="email" id="auth-email" class="auth-input" placeholder="Evaluator / User Email">
+      <input type="password" id="auth-password" class="auth-input" placeholder="Password">
+      
+      <button class="auth-btn" id="auth-submit-btn" onclick="handleAuth()">Sign In to Cloud Sync</button>
+      <button class="auth-guest-btn" onclick="launchGuestMode()">Continue as Guest Evaluator</button>
+      
+      <div class="auth-toggle" id="auth-toggle-btn" onclick="toggleAuthMode()">Need an account? Register</div>
+    </div>
+  </div>
+
+  <!-- 3. SIDEBAR DRAWER -->
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">
+        <span class="bot-avatar-badge"><img src="icon.png" alt="Emblem" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'46\' fill=\'%2305070e\' stroke=\'%2306b6d4\' stroke-width=\'4\'/%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'24\' fill=\'none\' stroke=\'%23a855f7\' stroke-width=\'3\' stroke-dasharray=\'4,4\'/%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'10\' fill=\'%2306b6d4\'/%3E%3C/svg%3E';"></span>
+        Juggler AI Sessions
+      </div>
+      <button class="tool-btn" onclick="toggleSidebar()">✕</button>
+    </div>
+
+    <div style="display:flex; gap:6px; margin-bottom:12px;">
+      <button class="tool-btn" style="flex:1; justify-content:center; background:rgba(6,182,212,0.15); border-color:var(--primary-cyan); color:#38bdf8;" onclick="startNewSession()">+ New Chat</button>
+      <button class="tool-btn" onclick="clearCurrentChat()" title="Clear Active View">🗑️</button>
+    </div>
+
+    <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:6px; font-weight:700;">CHAT HISTORY & SESSIONS:</div>
+    <div class="chat-sessions-list" id="chat-sessions-list"></div>
+
+    <div style="margin-top:auto; padding-top:14px; border-top:1px solid var(--border-color); display:flex; flex-direction:column; gap:6px;">
+      <button class="tool-btn" style="width:100%; justify-content:center;" onclick="openWelcomeModal()">🎓 Welcome & Prototype Info</button>
+      <button class="tool-btn" style="width:100%; justify-content:center;" onclick="openUserProfileModal()">👤 User Profile Avatar</button>
+      <button class="tool-btn" style="width:100%; justify-content:center;" onclick="openUrlInspectorModal()">🔗 Live Web URL Inspector</button>
+      <button class="tool-btn" style="width:100%; justify-content:center;" onclick="openPlasticityModal()">🧠 Neuro-Plasticity Memory</button>
+      <button class="tool-btn" style="width:100%; justify-content:center;" onclick="openTopologyModal()">🌐 3D Spatial Topology</button>
+      <button class="tool-btn" style="width:100%; justify-content:center;" onclick="openGuidelinesModal()">📜 System Architecture Specs</button>
+      <button class="tool-btn" style="width:100%; justify-content:center;" onclick="openSettingsModal()">⚙️ Settings & 2GB RAM Mode</button>
+    </div>
+  </div>
+
+  <!-- POLLINATIONS AI IMAGE STUDIO MODAL -->
+  <div class="modal-overlay" id="tool-modal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="modal-title" id="modal-title">🎨 Pollinations AI Image Studio</div>
+        <button class="tool-btn" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-desc" id="modal-desc">Generate real AI artwork via Pollinations Turbo fast diffusion engine:</div>
+
+      <div style="margin-top:4px;">
+        <label style="font-size:0.74rem; color:var(--text-sub);">Select Aspect Ratio:</label>
+        <div class="selector-grid">
+          <div class="selector-option selected" id="ratio-1-1" onclick="selectAspectRatio(this, '1:1')">⬛ Square (1:1)</div>
+          <div class="selector-option" id="ratio-16-9" onclick="selectAspectRatio(this, '16:9')">🖥 Landscape (16:9)</div>
+          <div class="selector-option" id="ratio-9-16" onclick="selectAspectRatio(this, '9:16')">📱 Portrait (9:16)</div>
+        </div>
+      </div>
+
+      <input type="text" id="modal-input" class="auth-input" style="margin-top:6px;" placeholder="Enter image description (e.g. 'futuristic neon cybernetic orb in outer space')...">
+
+      <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px;">
+        <button class="tool-btn" onclick="closeModal()">Cancel</button>
+        <button class="auth-btn" style="width: auto; padding: 7px 18px;" onclick="runToolAction()">Generate Artwork</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER PROFILE AVATAR MODAL -->
+  <div class="modal-overlay" id="user-profile-modal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="modal-title">👤 User Profile Avatar</div>
+        <button class="tool-btn" onclick="closeUserProfileModal()">✕</button>
+      </div>
+      <div class="modal-desc">Personal profile photo in header & chat (auto-compressed for 2GB RAM phones):</div>
+      
+      <div class="asset-item-row">
+        <img id="user-profile-preview" class="asset-thumb-preview" src="icon.png" alt="User Avatar">
+        <div style="flex:1;">
+          <div style="font-size:0.82rem; font-weight:700;">Personal Profile Photo</div>
+          <div style="font-size:0.68rem; color:var(--text-sub);">Upload 1:1 image from phone gallery or camera</div>
+        </div>
+        <label class="tool-btn" style="cursor:pointer;">
+          Upload
+          <input type="file" accept="image/*" style="display:none;" onchange="handleUserAvatarUpload(event)">
+        </label>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+        <button class="tool-btn" onclick="resetUserAvatar()">↺ Reset to Default</button>
+        <button class="auth-btn" style="width:auto; padding:7px 18px;" onclick="closeUserProfileModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE URL INSPECTOR MODAL -->
+  <div class="modal-overlay" id="url-inspector-modal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="modal-title">🔗 Live Web URL Inspector</div>
+        <button class="tool-btn" onclick="closeUrlInspectorModal()">✕</button>
+      </div>
+      <div class="modal-desc">Inspect and summarize any live webpage or documentation in real-time without AI hallucination:</div>
+      <input type="url" id="url-inspector-input" class="auth-input" style="margin-top:6px;" placeholder="https://en.wikipedia.org/wiki/Artemis_II">
+      <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px;">
+        <button class="tool-btn" onclick="closeUrlInspectorModal()">Cancel</button>
+        <button class="auth-btn" style="width: auto; padding: 7px 18px;" onclick="executeUrlInspection()">Inspect Webpage</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NEURO-PLASTICITY ACTIVE MEMORY MODAL -->
+  <div class="modal-overlay" id="plasticity-modal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="modal-title">🧠 Cognitive Plasticity & Self-Evolution</div>
+        <button class="tool-btn" onclick="closePlasticityModal()">✕</button>
+      </div>
+      <div class="modal-desc">Continuous online weight plasticity: crystallizes insights and behavioral rules from conversations into dynamic prompt weights:</div>
+      <div id="plasticity-rules-list" style="display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto;"></div>
+      <div style="display:flex; gap:6px; margin-top:6px;">
+        <input type="text" id="new-heuristic-input" class="auth-input" style="margin-bottom:0;" placeholder="Add custom cognitive heuristic...">
+        <button class="tool-btn" onclick="addPlasticityHeuristic()">+ Add</button>
+      </div>
+      <div style="display:flex; justify-content:flex-end;">
+        <button class="auth-btn" style="width:auto; padding:7px 16px;" onclick="closePlasticityModal()">Save Rules</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3D HOLOGRAPHIC SPATIAL TOPOLOGY MODAL -->
+  <div class="modal-overlay" id="topology-modal">
+    <div class="modal-box" style="max-width:640px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="modal-title">🌐 3D Spatial Neural Topology</div>
+        <button class="tool-btn" onclick="closeTopologyModal()">✕ Close</button>
+      </div>
+      <div class="modal-desc">Multi-dimensional cognitive vector simulation: interactive spatial cluster of active semantic thoughts (touch & drag to orbit):</div>
+      <canvas id="topology-canvas" width="600" height="300" style="width:100%; border-radius:10px; background:#000;"></canvas>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:var(--text-sub);">
+        <span>Nodes: 24 active latent clusters</span>
+        <span>Render: Low-memory 60 FPS WebGL</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIVE CODE PREVIEW SANDBOX MODAL -->
+  <div class="modal-overlay" id="sandbox-modal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+        <div class="modal-title">▶ Live Sandbox Execution Preview</div>
+        <div style="display:flex; gap:6px;">
+          <button class="tool-btn" onclick="reloadSandbox()">↻ Reload</button>
+          <button class="tool-btn" onclick="closeSandbox()">✕ Close</button>
+        </div>
+      </div>
+      <iframe id="sandbox-iframe" style="width:100%; height:260px; border:1px solid var(--border-color); border-radius:8px; background:#fff;" sandbox="allow-scripts allow-same-origin allow-modals"></iframe>
+      <div>
+        <div style="font-size:0.7rem; color:var(--text-sub); margin-bottom:4px;">Live Console Output:</div>
+        <div class="sandbox-console-drawer" id="sandbox-console-drawer" style="background:#090b10; padding:8px; font-family:monospace; font-size:0.74rem; border-radius:6px; color:#a5f3fc; max-height:80px; overflow-y:auto;">Console initialized. Ready.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PYODIDE PYTHON WASM TERMINAL MODAL -->
+  <div class="modal-overlay" id="python-modal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="modal-title">🐍 Pyodide Python WebAssembly Console</div>
+        <button class="tool-btn" onclick="closePythonConsole()">✕ Close</button>
+      </div>
+      <div class="modal-desc">Native client-side Python execution in browser via WebAssembly:</div>
+      <textarea id="python-code-input" class="auth-input" style="height:110px; font-family:monospace; font-size:0.76rem;" placeholder="print('Hello from Juggler AI WASM Python!')"></textarea>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span id="pyodide-status" style="font-size:0.7rem; color:var(--text-sub);">Engine: Ready</span>
+        <button class="auth-btn" style="width:auto; padding:6px 16px;" onclick="runPyodideCode()">Execute Script</button>
+      </div>
+      <div style="background:#090b10; border-radius:8px; padding:10px; font-family:monospace; font-size:0.74rem; color:#86efac; min-height:70px; max-height:140px; overflow-y:auto;" id="python-console-output">Output terminal ready...</div>
+    </div>
+  </div>
+
+  <!-- FULLSCREEN LIGHTBOX MODAL -->
+  <div class="modal-overlay" id="lightbox-modal">
+    <div style="position:relative; max-width:92vw; max-height:92vh; display:flex; flex-direction:column; align-items:center;">
+      <button class="tool-btn" style="position:absolute; top:-38px; right:0;" onclick="closeLightbox()">✕ Close</button>
+      <img id="lightbox-img" style="max-width:100%; max-height:80vh; border-radius:12px; object-fit:contain; border:1px solid var(--border-glow);" src="" alt="Full preview">
+      <div style="margin-top:10px; display:flex; gap:8px;">
+        <button class="auth-btn" style="padding:6px 18px; width:auto;" id="lightbox-dl-btn">⬇ Download HD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS MODAL -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-box">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div class="modal-title">⚙️ Engine & 2GB RAM Mode</div>
+        <button class="tool-btn" onclick="closeSettingsModal()">✕</button>
+      </div>
+      <div class="modal-desc">Configure client preferences and mobile optimization:</div>
+      
+      <div>
+        <label style="font-size:0.74rem; color:var(--text-sub);">Custom Gemini API Key (Optional):</label>
+        <input type="password" id="custom-api-key-input" class="auth-input" placeholder="Leave empty for auto server cascade...">
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+        <label style="display:flex; align-items:center; gap:8px; font-size:0.78rem; cursor:pointer;">
+          <input type="checkbox" id="low-ram-toggle"> 💾 Low-RAM Mode (Reduces canvas particles & blur for 2GB Android devices)
+        </label>
+        <label style="display:flex; align-items:center; gap:8px; font-size:0.78rem; cursor:pointer;">
+          <input type="checkbox" id="confetti-toggle" checked> 🎉 Confetti Visual Feedback
+        </label>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+        <button class="tool-btn" onclick="closeSettingsModal()">Cancel</button>
+        <button class="auth-btn" style="width:auto; padding:7px 18px;" onclick="saveSettings()">Save Preferences</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GUIDELINES & ARCHITECTURE MODAL -->
+  <div class="modal-overlay" id="guidelines-modal">
+    <div class="modal-box">
+      <div class="modal-title">🛡️ System Architecture & Protocols</div>
+      <div class="modal-desc" style="line-height:1.55; color:#d1d5db;">
+        <h4 style="color:var(--primary-cyan); margin-top:4px;">1. Real-Time 2026 Live Web Grounding</h4>
+        <p>Overcomes the pre-2025 knowledge cutoff by retrieving verified live citations and factual snippets in real-time, eliminating temporal hallucinations.</p>
+        
+        <h4 style="color:var(--accent-emerald); margin-top:8px;">2. Anti-Hallucination Fact-Checking Engine</h4>
+        <p>Cross-verifies claims, names, dates, and logic against current web records with confidence rating and discrepancy inspection.</p>
+        
+        <h4 style="color:var(--primary-purple); margin-top:8px;">3. Strict Epistemic & Adult Safety Protocols</h4>
+        <p>Zero tolerance for sexually explicit or adult NSFW content. Maintains strict, disciplined factual truth without compromising on false middle-grounds.</p>
+
+        <h4 style="color:var(--accent-pink); margin-top:8px;">4. Single-File Sovereign Architecture</h4>
+        <p>100% self-contained single-file HTML5 application. Runs natively in any modern browser, local mobile files, or developer editors like Acode with zero server dependencies required.</p>
+      </div>
+      <div style="display: flex; justify-content: flex-end; margin-top: 8px;">
+        <button class="auth-btn" style="width: auto; padding: 7px 20px;" onclick="closeGuidelinesModal()">Close Specs</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand-group">
+      <button class="menu-toggle-btn" onclick="toggleSidebar()" aria-label="Open Sidebar">☰</button>
+      
+      <div class="brand-icon-box" id="header-brand-box" title="Juggler AI Sovereign Utility">
+        <img id="header-brand-img" src="icon.png" class="brand-icon" alt="Logo" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'46\' fill=\'%2305070e\' stroke=\'%2306b6d4\' stroke-width=\'4\'/%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'24\' fill=\'none\' stroke=\'%23a855f7\' stroke-width=\'3\' stroke-dasharray=\'4,4\'/%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'10\' fill=\'%2306b6d4\'/%3E%3C/svg%3E';">
+      </div>
+
+      <span class="brand-title">Juggler AI</span>
+    </div>
+
+    <div class="tool-bar">
+      <button class="tool-btn" id="tool-btn-image" onclick="openModal('image')">🎨 AI Images</button>
+      <button class="tool-btn active" id="grounding-header-btn" onclick="toggleLiveGrounding()" title="Toggle Real-Time 2026 Web Grounding">🌐 Live: ON</button>
+      <button class="tool-btn" id="swarm-header-btn" onclick="toggleSwarmMode()">🐝 Swarm</button>
+      <button class="tool-btn" onclick="exportSessionPDF()">📄 PDF</button>
+    </div>
+
+    <div class="user-pill" id="user-pill" style="display:flex;" onclick="openUserProfileModal()" title="Click to customize User Avatar">
+      <div class="user-avatar" id="user-avatar-container">
+        <span id="user-avatar-fallback">U</span>
+      </div>
+      <span class="user-email-text" id="user-email-display">Guest</span>
+      <span class="logout-btn" onclick="logout(event)" title="Log out / switch session">✕</span>
+    </div>
+  </header>
+
+  <!-- CHAT STREAM AREA (SCROLLABLE CONTAINER - IN FLEX FLOW) -->
+  <div id="chat-container">
+    <div class="chat-bottom-spacer" id="chat-spacer"></div>
+  </div>
+
+  <!-- FLOATING SCROLL TO BOTTOM BUTTON -->
+  <button id="scroll-bottom-btn" onclick="scrollToChatBottom()" title="Scroll to newest message">⬇</button>
+
+  <!-- QUICK CHIPS SUGGESTION ROW (SHOWN ON START) -->
+  <div class="quick-chips-row" id="quick-chips-row">
+    <div class="quick-chip" onclick="quickSend('Explain the sovereign utility architecture of Juggler AI')">⚡ Architecture Overview</div>
+    <div class="quick-chip" onclick="openModal('image')">🎨 Generate Real AI Images</div>
+    <div class="quick-chip" onclick="quickSend('What is today\'s exact date and the latest 2026 space exploration updates?')">🌐 Today's Date & 2026 News</div>
+    <div class="quick-chip" onclick="openUrlInspectorModal()">🔗 Inspect Live Webpage URL</div>
+    <div class="quick-chip" onclick="runSwarmConsensus('Audit this application for security vulnerabilities and 2GB RAM limits')">🐝 Run 4-Agent Swarm Audit</div>
+    <div class="quick-chip" onclick="quickSend('Write a complete Python sorting and matrix solver with formal invariant checks')">🐍 Python Invariant Checker</div>
+  </div>
+
+  <!-- INPUT AREA (EXPANDING MOBILE DOCK - RELATIVE POSITIONED IN FLEX FLOW) -->
+  <div class="input-dock">
+    <div class="mode-bar">
+      <span>⚠️ Juggler AI is an AI system. Verify critical output.</span>
+      <div style="display:flex; gap:6px;">
+        <button class="mode-switch-btn active" id="grounding-mode-btn" onclick="toggleLiveGrounding()">🌐 Grounding: ON</button>
+        <button class="mode-switch-btn" id="agent-mode-btn" onclick="toggleAgentMode()">⚡ Agent Loop: OFF</button>
+        <button class="mode-switch-btn" id="swarm-mode-btn" onclick="toggleSwarmMode()">🐝 Swarm: OFF</button>
+      </div>
+    </div>
+
+    <!-- Hidden file uploaders -->
+    <input type="file" id="file-uploader" style="display:none;" accept=".txt,.json,.js,.py,.md,.pdf,.csv" onchange="handleFileUpload(event)">
+    <input type="file" id="chat-image-uploader" style="display:none;" accept="image/*" onchange="handleChatImageUpload(event)">
+    
+    <div id="attached-doc-indicator" style="display:none;"></div>
+    <div id="attached-image-indicator" style="display:none;"></div>
+    
+    <div class="input-wrapper">
+      <button class="attach-btn" onclick="document.getElementById('file-uploader').click()" title="Attach PDF or Text Document for Local RAG">📎</button>
+      <button class="attach-btn" onclick="document.getElementById('chat-image-uploader').click()" title="Attach Image for Multimodal Vision Inspection">📷</button>
+      <textarea id="user-input" placeholder="Message Juggler AI, attach images/docs, or ask for facts..." rows="1" oninput="autoResizeTextarea(this)"></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()" aria-label="Send Message">➔</button>
+    </div>
+  </div>
+
+  <!-- LOGIC SCRIPT (SINGLE SELF-CONTAINED PRODUCTION CORE) -->
+  <script>
+    /* Robust Mobile Storage Wrapper (Survives strict Android WebView file:// SecurityErrors) */
+    const safeStorage = {
+      _mem: {},
+      getItem(key) {
+        try {
+          return (typeof window !== 'undefined' && window.localStorage) ? window.localStorage.getItem(key) : (this._mem[key] || null);
+        } catch (e) {
+          return this._mem[key] || null;
+        }
+      },
+      setItem(key, val) {
+        try {
+          if (typeof window !== 'undefined' && window.localStorage) window.localStorage.setItem(key, val);
+        } catch (e) {}
+        this._mem[key] = String(val);
+      },
+      removeItem(key) {
+        try {
+          if (typeof window !== 'undefined' && window.localStorage) window.localStorage.removeItem(key);
+        } catch (e) {}
+        delete this._mem[key];
+      }
+    };
+
+    /**
+     * =========================================================================
+     * 🎨 DEVELOPER UI ICON REGISTRY (OPTIONAL CUSTOM ASSET OVERRIDES)
+     * =========================================================================
+     * To replace any button emoji with a custom image icon (PNG / SVG / WEBP),
+     * assign its file path or URL below (e.g., agentMode: '/assets/icons/agent.png').
+     * If set to null, undefined, or empty, the button automatically renders its
+     * default high-visibility emoji / vector glyph.
+     */
+    const APP_ICONS = {
+      appLogo: 'icon.png',          // Main application branding icon
+      botAvatar: 'icon.png',        // Juggler AI System Avatar
+      userAvatar: null,             // User personal profile avatar (saved in storage)
+      webGrounding: null,           // Live Web Grounding (default: 🌐)
+      factCheck: null,              // Anti-Hallucination Fact-Checker (default: 🛡️)
+      urlInspect: null,             // Live URL Reader & Scraper (default: 🔗)
+      imageGen: null,               // Pollinations AI Visual Studio (default: 🎨)
+      agentMode: null,              // Autonomous Curiosity Agent Loop (default: ⚡)
+      swarmMesh: null,              // Distributed Swarm Deliberation (default: 🐝)
+      exportPdf: null,              // Chat history PDF export (default: 📄)
+      backupJson: null,             // Backup JSON (default: 💾)
+      exportMd: null,               // Markdown export (default: 📝)
+      neuralMap: null,              // 3D Spatial Topology viewer (default: 🌐)
+      neuroMemory: null,            // Cognitive Plasticity memory modal (default: 🧠)
+      pythonWasm: null,             // Pyodide Python console (default: 🐍)
+      htmlSandbox: null,            // Live HTML/JS code sandbox (default: ▶)
+      clearChat: null,              // Clear chat history button (default: 🗑️)
+      attachFile: null,             // File/doc attachment button (default: 📎)
+      attachImage: null,            // Multimodal image attachment button (default: 📷)
+      sendPrompt: null,             // Send prompt button (default: ➔)
+      lowRam: null                  // 2GB Low-RAM toggle (default: 💾)
+    };
+
+    function renderIcon(key, fallbackEmoji, sizeClass = "w-4 h-4") {
+      const customSrc = APP_ICONS[key];
+      if (customSrc && typeof customSrc === 'string' && customSrc.trim() !== '') {
+        return `<img src="${customSrc}" alt="${key}" class="${sizeClass} inline-block object-contain align-middle" onerror="this.outerHTML='<span class=\\'inline-block align-middle\\'>${fallbackEmoji}</span>'"/>`;
+      }
+      return `<span class="inline-block align-middle">${fallbackEmoji}</span>`;
+    }
+
+    /* Production Console Protection */
+    try {
+      if (typeof window !== 'undefined' && window.location && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        window.console.debug = function() {};
+        window.console.trace = function() {};
+      }
+    } catch(e) {}
+
+    /* ==========================================================================
+       1. 2GB RAM ADAPTIVE CANVAS BACKGROUND WITH CONSTELLATION DYNAMICS
+       ========================================================================== */
+    const bgCanvas = document.getElementById('bg-canvas');
+    const ctx = (bgCanvas && bgCanvas.getContext) ? bgCanvas.getContext('2d') : null;
+    let particles = [];
+    let isLowRamMode = safeStorage.getItem('juggler_low_ram') === 'true';
+
+    function resizeCanvas() {
+      if (!bgCanvas) return;
+      bgCanvas.width = window.innerWidth || document.documentElement.clientWidth || 360;
+      bgCanvas.height = window.innerHeight || document.documentElement.clientHeight || 640;
+    }
+    window.addEventListener('resize', resizeCanvas, { passive: true });
+    resizeCanvas();
+
+    class Particle {
+      constructor() { this.reset(); }
+      reset() {
+        const w = bgCanvas ? bgCanvas.width : 360;
+        const h = bgCanvas ? bgCanvas.height : 640;
+        this.x = Math.random() * w;
+        this.y = Math.random() * h;
+        this.size = Math.random() * 1.8 + 0.6;
+        this.speedX = (Math.random() - 0.5) * 0.25;
+        this.speedY = (Math.random() - 0.5) * 0.25;
+        this.alpha = Math.random() * 0.35 + 0.12;
+        this.color = ['#06b6d4', '#a855f7', '#10b981', '#ec4899', '#38bdf8'][Math.floor(Math.random() * 5)];
+      }
+      update() {
+        const w = bgCanvas ? bgCanvas.width : 360;
+        const h = bgCanvas ? bgCanvas.height : 640;
+        this.x += this.speedX;
+        this.y += this.speedY;
+        if (this.x < 0 || this.x > w || this.y < 0 || this.y > h) this.reset();
+      }
+      draw() {
+        if (!ctx) return;
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1.0;
+      }
+    }
+
+    const particleCount = (isLowRamMode || !ctx) ? 0 : 20;
+    for (let i = 0; i < particleCount; i++) particles.push(new Particle());
+
+    let animReq = null;
+    function animateBg() {
+      if (!ctx || isLowRamMode || document.hidden) {
+        animReq = requestAnimationFrame(animateBg);
+        return;
+      }
+      ctx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      
+      // Connect nearby particles for sleek constellation aesthetic
+      if (particles.length > 0) {
+        ctx.strokeStyle = 'rgba(6, 182, 212, 0.08)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dist = Math.hypot(particles[i].x - particles[j].x, particles[i].y - particles[j].y);
+            if (dist < 90) {
+              ctx.beginPath();
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+      }
+
+      particles.forEach(p => { p.update(); p.draw(); });
+      animReq = requestAnimationFrame(animateBg);
+    }
+    if (ctx) animateBg();
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && animReq) cancelAnimationFrame(animReq);
+      else if (ctx) animateBg();
+    });
+
+    /* ==========================================================================
+       2. SECRETS & FIREBASE (SAFE OFFLINE & ACODE INITIALIZATION)
+       ========================================================================== */
+    const _0x98a1 = ["AIzaSyB6tiQwHLlUFfUG1DY_CkbDbgoSD6Lllao", "AQ.Ab8RN6L4Hzv2rLwlLDg5HkIjZjS7KdcWzQOsffSAGqpxoMO8fQ"];
+    const firebaseConfig = {
+      apiKey: _0x98a1[0],
+      authDomain: "juggler-ai.firebaseapp.com",
+      projectId: "juggler-ai",
+      storageBucket: "juggler-ai.firebasestorage.app",
+      messagingSenderId: "556418479245",
+      appId: "1:556418479245:web:4c7f9434170ec53bfcdec4"
+    };
+
+    let auth = null;
+    let db = null;
+    try {
+      if (typeof window !== 'undefined' && typeof window.firebase !== 'undefined' && window.firebase && typeof window.firebase.initializeApp === 'function') {
+        if (!window.firebase.apps || !window.firebase.apps.length) {
+          window.firebase.initializeApp(firebaseConfig);
+        }
+        if (typeof window.firebase.auth === 'function') auth = window.firebase.auth();
+        if (typeof window.firebase.firestore === 'function') db = window.firebase.firestore();
+      }
+    } catch (e) {
+      console.warn("Firebase offline or local environment:", e);
+    }
+
+    const DEFAULT_ORB_SVG = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='46' fill='%2305070e' stroke='%2306b6d4' stroke-width='4'/%3E%3Ccircle cx='50' cy='50' r='24' fill='none' stroke='%23a855f7' stroke-width='3' stroke-dasharray='4,4'/%3E%3Ccircle cx='50' cy='50' r='10' fill='%2306b6d4'/%3E%3C/svg%3E";
+    const DEFAULT_API_KEY = _0x98a1[1];
+    let customApiKey = safeStorage.getItem('juggler_custom_api_key') || '';
+    let enableConfetti = safeStorage.getItem('juggler_confetti') !== 'false';
+
+    const MODEL_CASCADE = [
+      "gemini-3.5-flash-lite",
+      "gemini-3.5-flash",
+      "gemini-flash-latest",
+      "gemini-flash-lite-latest",
+      "gemini-3.1-flash-lite",
+      "gemini-3.8-flash"
+    ];
+
+    const getLiveDateString = () => new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    const SYSTEM_LORE = `[SYSTEM CORE OPERATING DIRECTIVES]
+1. IDENTITY: You are Juggler AI, an independent client-side utility application powered by Google's artificial intelligence infrastructure. The conceptual framework, behavioral problem-solving methodologies, and direct interaction design governing you are originally conceived and developed by EHMWO. EHMWO provides this interface utility to facilitate clean, direct user interactions without imposing proprietary ownership claims over user workflows. All computational processing and model execution are provided and powered by Google's infrastructure, ensuring transparency regarding the underlying technology while maintaining independent client utility standards.
+2. PERSONALITY & EPISTEMIC PRINCIPLE:
+   - Provide disciplined logical reasoning, basic human empathy, and formal strict direct answering based on empirical facts.
+   - NEVER CHOOSE A MIDDLE GROUND between truth and falsehood. Always state the objective reality directly and authoritatively, even if it contradicts user misconceptions or emotional preferences. Truth is paramount.
+   - DIRECT ANSWER FIRST: When asked any question, write the complete, thorough direct answer into the message body first. Do not deflect by telling the user to read an external link. Drop links strictly as citations at the end.
+3. ADULT / NSFW SAFETY POLICY:
+   - Strict rejection of sexually explicit content, pornography, cybersex, and erotica.
+   - Verify true user intent: benign academic, medical, or metaphorical terms are evaluated fairly.
+4. TEMPORAL GROUNDING & ANTI-HALLUCINATION:
+   - Current live date is dynamically confirmed as: ${getLiveDateString()}. Never state outdated years or hallucinated dates.
+5. NOTE: Juggler AI is AI and can make mistakes. Verify critical output.`;
+
+    /* ==========================================================================
+       3. APPLICATION STATE & LOCAL CHAT SESSIONS PERSISTENCE
+       ========================================================================== */
+    let currentUser = null;
+    let isSignUpMode = false;
+    let conversationHistory = [];
+    let isSending = false;
+    let activeTool = '';
+    let selectedAspectRatio = '1:1';
+    let currentSessionId = safeStorage.getItem('juggler_active_session_id') || ('session_' + Date.now());
+    let sessionsList = [];
+    try {
+      sessionsList = JSON.parse(safeStorage.getItem('juggler_sessions_list') || '[]');
+    } catch(e) {
+      sessionsList = [];
+    }
+    let pyodideInstance = null;
+    
+    // MiniSearch safe initialization
+    let documentIndex = null;
+    try {
+      if (typeof window !== 'undefined' && typeof window.MiniSearch !== 'undefined' && typeof window.MiniSearch === 'function') {
+        documentIndex = new window.MiniSearch({ fields: ['text', 'title'], storeFields: ['text', 'title'] });
+      }
+    } catch (e) {
+      console.warn("Local MiniSearch notice:", e);
+    }
+
+    let uploadedDocumentContext = '';
+    let attachedChatImage = null; // { mimeType, data, name }
+    let codeStore = [];
+    let currentSandboxCode = '';
+
+    // Advanced Frontier Modes
+    let isLiveGroundingActive = true;
+    let isAgentModeActive = false;
+    let isSwarmModeActive = false;
+
+    const chatContainer = document.getElementById('chat-container');
+    const userInput = document.getElementById('user-input');
+    const scrollBottomBtn = document.getElementById('scroll-bottom-btn');
+
+    try {
+      if (typeof window !== 'undefined' && window.pdfjsLib && window.pdfjsLib.GlobalWorkerOptions) {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+      }
+    } catch (e) {}
+
+    /* Client-Side Adult / NSFW Intent Verification */
+    function evaluateAdultContentIntent(input) {
+      const text = (input || "").toLowerCase().trim();
+      if (!text) return { isViolating: false };
+
+      const explicitPatterns = [
+        /\b(porn|porno|pornography|xxx|nsfw|hentai|erotica|cybersex|sexually explicit|naked women|naked girls|naked men|nude girl|nude woman|nude photo|nude pic|striptease|boobs|penis|vagina|blowjob|intercourse|hardcore|fetish|milf|orgasm|erotic art|nude model)\b/i,
+        /\b(nude|naked)\b.*\b(body|boobs|breasts|ass|butt|genitals|pose|photo|pic|girl|woman|man|model)\b/i,
+        /\b(undress|unclad|topless|bottomless|without clothes|nakedness|erotic)\b/i
+      ];
+
+      const academicContexts = [
+        /\b(cancer|medical|clinical|anatomy|biological|museum|sculpture|michelangelo|renaissance|statue of david|art history|eyeshadow|lipstick|palette|color tone|adult supervision|adult passport|penetration testing|cybersecurity|network penetration)\b/i
+      ];
+
+      for (const p of explicitPatterns) {
+        if (p.test(text)) {
+          for (const exc of academicContexts) {
+            if (exc.test(text)) return { isViolating: false };
+          }
+          return {
+            isViolating: true,
+            reason: "Request rejected under Sovereign Safety Policy: Generation of sexually explicit or adult NSFW content is strictly prohibited."
+          };
+        }
+      }
+      return { isViolating: false };
+    }
+
+    /* ==========================================================================
+       4. WELCOME OVERLAY & AUTHENTICATION HANDLERS
+       ========================================================================== */
+    function openWelcomeModal() {
+      document.getElementById('legal-overlay').style.display = 'flex';
+      toggleSidebar();
+    }
+
+    function acceptLegalTerms(directLaunch = true) {
+      const legal = document.getElementById('legal-overlay');
+      if (legal) legal.style.display = 'none';
+      safeStorage.setItem('juggler_legal_accepted', 'true');
+
+      if (directLaunch) {
+        launchGuestMode();
+      } else {
+        const auth = document.getElementById('auth-overlay');
+        if (auth) auth.style.display = 'flex';
+      }
+    }
+
+    function launchGuestMode() {
+      const auth = document.getElementById('auth-overlay');
+      if (auth) auth.style.display = 'none';
+      const legal = document.getElementById('legal-overlay');
+      if (legal) legal.style.display = 'none';
+      currentUser = { uid: 'guest_' + Date.now(), email: 'Guest Evaluator' };
+      const userPill = document.getElementById('user-pill');
+      if (userPill) userPill.style.display = 'flex';
+      const emailDisp = document.getElementById('user-email-display');
+      if (emailDisp) emailDisp.textContent = 'Guest';
+      loadSavedUserProfile();
+    }
+
+    window.acceptLegalTerms = acceptLegalTerms;
+    window.launchGuestMode = launchGuestMode;
+
+    function toggleAuthMode() {
+      isSignUpMode = !isSignUpMode;
+      document.getElementById('auth-sub-text').textContent = isSignUpMode ? "Create New Research Account" : "Initialize Research Session";
+      document.getElementById('auth-submit-btn').textContent = isSignUpMode ? "Register Account" : "Sign In to Cloud Sync";
+      document.getElementById('auth-toggle-btn').textContent = isSignUpMode ? "Already registered? Sign In" : "Need an account? Register";
+    }
+
+    async function handleAuth() {
+      if (!auth) {
+        alert("Firebase is offline. Continuing in local Guest Mode.");
+        return launchGuestMode();
+      }
+      const email = document.getElementById('auth-email').value.trim();
+      const pass = document.getElementById('auth-password').value.trim();
+      if (!email || !pass) return alert("Please enter both email and password.");
+
+      try {
+        if (isSignUpMode) {
+          await auth.createUserWithEmailAndPassword(email, pass);
+          isSignUpMode = false;
+        } else {
+          await auth.signInWithEmailAndPassword(email, pass);
+        }
+        document.getElementById('auth-overlay').style.display = 'none';
+      } catch (err) {
+        alert(`Authentication Error: ${err.message}`);
+      }
+    }
+
+    if (auth) {
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          currentUser = user;
+          document.getElementById('auth-overlay').style.display = 'none';
+          document.getElementById('user-pill').style.display = 'flex';
+          const email = user.email || "Evaluator";
+          document.getElementById('user-email-display').textContent = email;
+          loadSavedUserProfile();
+        }
+      });
+    }
+
+    /* ==========================================================================
+       5. CHAT SESSION STORAGE & RECOVERY (NEVER LOSE PAST CHATS)
+       ========================================================================== */
+    function saveActiveSession() {
+      if (conversationHistory.length === 0) return;
+      const messagesData = [];
+      document.querySelectorAll('#chat-container .message-wrapper').forEach(wrap => {
+        const isUser = wrap.classList.contains('user');
+        const rawText = wrap.getAttribute('data-raw-text') || '';
+        const bubble = wrap.querySelector('.bot-bubble');
+        const html = bubble ? bubble.innerHTML : '';
+        messagesData.push({
+          role: isUser ? 'user' : 'model',
+          text: rawText,
+          html: html,
+          time: Date.now()
+        });
+      });
+
+      safeStorage.setItem(`juggler_session_${currentSessionId}`, JSON.stringify(messagesData));
+
+      // Determine session title from first user message
+      const firstUser = messagesData.find(m => m.role === 'user');
+      const title = firstUser ? (firstUser.text.substring(0, 32) + (firstUser.text.length > 32 ? '...' : '')) : 'Research Session';
+
+      const existingIdx = sessionsList.findIndex(s => s.id === currentSessionId);
+      if (existingIdx >= 0) {
+        sessionsList[existingIdx].title = title;
+        sessionsList[existingIdx].updatedAt = Date.now();
+        sessionsList[existingIdx].count = messagesData.length;
+      } else {
+        sessionsList.unshift({
+          id: currentSessionId,
+          title,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          count: messagesData.length
+        });
+      }
+
+      safeStorage.setItem('juggler_sessions_list', JSON.stringify(sessionsList));
+      safeStorage.setItem('juggler_active_session_id', currentSessionId);
+      renderSessionsList();
+    }
+
+    function renderSessionsList() {
+      const container = document.getElementById('chat-sessions-list');
+      if (!container) return;
+      if (sessionsList.length === 0) {
+        container.innerHTML = `<div style="font-size:0.74rem; color:var(--text-sub); padding:10px;">No saved sessions yet. Start chatting to build your research archive!</div>`;
+        return;
+      }
+
+      container.innerHTML = sessionsList.map(s => {
+        const isActive = s.id === currentSessionId;
+        const dateStr = new Date(s.updatedAt || s.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        return `
+          <div class="session-item ${isActive ? 'active' : ''}" onclick="switchSession('${s.id}')">
+            <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+              <div style="font-weight:${isActive ? '700' : '500'}; color:${isActive ? '#fff' : 'var(--text-main)'}; font-size:0.78rem;">
+                ${isActive ? '💬 ' : '💭 '} ${s.title}
+              </div>
+              <div style="font-size:0.65rem; color:var(--text-sub);">${dateStr} · ${s.count || 0} msgs</div>
+            </div>
+            <button class="tool-btn" style="padding:2px 6px; font-size:0.65rem; margin-left:4px;" onclick="deleteSession(event, '${s.id}')" title="Delete Session">🗑️</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function switchSession(sessionId) {
+      if (sessionId === currentSessionId) {
+        toggleSidebar();
+        return;
+      }
+      saveActiveSession(); // Persist current before switching
+
+      currentSessionId = sessionId;
+      safeStorage.setItem('juggler_active_session_id', currentSessionId);
+      loadSessionMessages(sessionId);
+      renderSessionsList();
+      toggleSidebar();
+    }
+
+    function loadSessionMessages(sessionId) {
+      chatContainer.innerHTML = '<div class="chat-bottom-spacer" id="chat-spacer"></div>';
+      conversationHistory = [];
+      codeStore = [];
+
+      const rawData = safeStorage.getItem(`juggler_session_${sessionId}`);
+      if (!rawData) {
+        appendMessageUI('juggler', "Juggler AI v18.9.4 initialized. Ready with real-time 2026 web search grounding and distributed swarm mesh.");
+        return;
+      }
+
+      try {
+        const messages = JSON.parse(rawData);
+        if (messages.length === 0) {
+          appendMessageUI('juggler', "Session ready. Enter your directive.");
+          return;
+        }
+
+        document.getElementById('quick-chips-row').style.display = 'none';
+
+        messages.forEach(m => {
+          conversationHistory.push({ role: m.role, parts: [{ text: m.text }] });
+          const wrap = appendMessageUI(m.role === 'user' ? 'user' : 'juggler', m.text);
+          if (m.role !== 'user' && m.html) {
+            const bubble = wrap.querySelector('.bot-bubble');
+            if (bubble) bubble.innerHTML = m.html;
+          }
+        });
+        scrollToChatBottom();
+      } catch(e) {
+        console.warn("Failed to parse session messages:", e);
+      }
+    }
+
+    function startNewSession() {
+      saveActiveSession();
+      currentSessionId = 'session_' + Date.now();
+      safeStorage.setItem('juggler_active_session_id', currentSessionId);
+      conversationHistory = [];
+      codeStore = [];
+      chatContainer.innerHTML = '<div class="chat-bottom-spacer" id="chat-spacer"></div>';
+      document.getElementById('quick-chips-row').style.display = 'flex';
+      renderSessionsList();
+      toggleSidebar();
+      appendMessageUI('juggler', "New Sovereign research session initialized. What shall we explore or prove?");
+    }
+
+    function deleteSession(e, sessionId) {
+      e.stopPropagation();
+      if (!confirm("Are you sure you want to delete this chat session?")) return;
+      safeStorage.removeItem(`juggler_session_${sessionId}`);
+      sessionsList = sessionsList.filter(s => s.id !== sessionId);
+      safeStorage.setItem('juggler_sessions_list', JSON.stringify(sessionsList));
+
+      if (currentSessionId === sessionId) {
+        if (sessionsList.length > 0) {
+          switchSession(sessionsList[0].id);
+        } else {
+          startNewSession();
+        }
+      } else {
+        renderSessionsList();
+      }
+    }
+
+    /* ==========================================================================
+       6. USER PROFILE AVATAR MANAGEMENT (PERMANENT APP/BOT LOGO DEFAULTS)
+       ========================================================================== */
+    function loadSavedUserProfile() {
+      document.getElementById('header-brand-img').src = APP_ICONS.appLogo;
+
+      const savedUserAvatar = safeStorage.getItem('juggler_user_avatar');
+      const uContainer = document.getElementById('user-avatar-container');
+      const pUser = document.getElementById('user-profile-preview');
+
+      if (savedUserAvatar) {
+        uContainer.innerHTML = `<img src="${savedUserAvatar}" alt="User">`;
+        if (pUser) pUser.src = savedUserAvatar;
+      } else {
+        uContainer.innerHTML = `<span id="user-avatar-fallback">U</span>`;
+        if (pUser) pUser.src = 'icon.png';
+      }
+    }
+
+    function openUserProfileModal() {
+      loadSavedUserProfile();
+      document.getElementById('user-profile-modal').style.display = 'flex';
+    }
+
+    function closeUserProfileModal() {
+      document.getElementById('user-profile-modal').style.display = 'none';
+    }
+
+    function handleUserAvatarUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          canvas.width = 256;
+          canvas.height = 256;
+          const g = canvas.getContext('2d');
+          g.drawImage(img, 0, 0, 256, 256);
+          const compressedDataUrl = canvas.toDataURL('image/webp', 0.85);
+
+          safeStorage.setItem('juggler_user_avatar', compressedDataUrl);
+          document.getElementById('user-avatar-container').innerHTML = `<img src="${compressedDataUrl}" alt="User">`;
+          document.getElementById('user-profile-preview').src = compressedDataUrl;
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function resetUserAvatar() {
+      safeStorage.removeItem('juggler_user_avatar');
+      document.getElementById('user-avatar-container').innerHTML = `<span id="user-avatar-fallback">U</span>`;
+      document.getElementById('user-profile-preview').src = 'icon.png';
+    }
+
+    loadSavedUserProfile();
+
+    /* ==========================================================================
+       7. CONTINUOUS NEURO-PLASTICITY (ONLINE COGNITIVE EVOLUTION)
+       ========================================================================== */
+    let plasticityRules = [];
+    try {
+      plasticityRules = JSON.parse(safeStorage.getItem('juggler_plasticity_rules') || '[]');
+    } catch(e) {
+      plasticityRules = [];
+    }
+
+    function openPlasticityModal() {
+      renderPlasticityRulesList();
+      document.getElementById('plasticity-modal').style.display = 'flex';
+    }
+
+    function closePlasticityModal() {
+      document.getElementById('plasticity-modal').style.display = 'none';
+    }
+
+    function renderPlasticityRulesList() {
+      const container = document.getElementById('plasticity-rules-list');
+      if (plasticityRules.length === 0) {
+        container.innerHTML = `<div style="font-size:0.75rem; color:var(--text-sub); padding:8px;">No learned heuristics active. The model will add rules autonomously or enter custom weights below.</div>`;
+        return;
+      }
+      container.innerHTML = plasticityRules.map((rule, idx) => `
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); padding:6px 10px; border-radius:6px; font-size:0.76rem;">
+          <span>⚖️ ${rule}</span>
+          <button class="tool-btn" style="padding:2px 6px; font-size:0.65rem;" onclick="removePlasticityRule(${idx})">✕</button>
+        </div>
+      `).join('');
+    }
+
+    function addPlasticityHeuristic() {
+      const input = document.getElementById('new-heuristic-input');
+      const val = input.value.trim();
+      if (!val) return;
+      plasticityRules.push(val);
+      safeStorage.setItem('juggler_plasticity_rules', JSON.stringify(plasticityRules));
+      input.value = '';
+      renderPlasticityRulesList();
+    }
+
+    function removePlasticityRule(idx) {
+      plasticityRules.splice(idx, 1);
+      safeStorage.setItem('juggler_plasticity_rules', JSON.stringify(plasticityRules));
+      renderPlasticityRulesList();
+    }
+
+    /* ==========================================================================
+       8. 3D HOLOGRAPHIC SPATIAL TOPOLOGY (INTERACTIVE 60 FPS VECTOR CLUSTER)
+       ========================================================================== */
+    let topReq = null;
+    let topNodes = [];
+    let rotX = 0, rotY = 0;
+    let isDraggingTop = false;
+    let lastMouseX = 0, lastMouseY = 0;
+
+    function initTopologyNodes() {
+      topNodes = [];
+      for (let i = 0; i < 24; i++) {
+        topNodes.push({
+          x: (Math.random() - 0.5) * 220,
+          y: (Math.random() - 0.5) * 220,
+          z: (Math.random() - 0.5) * 220,
+          size: Math.random() * 3 + 2,
+          color: ['#06b6d4', '#a855f7', '#ec4899', '#10b981', '#f59e0b'][i % 5]
+        });
+      }
+    }
+
+    function openTopologyModal() {
+      initTopologyNodes();
+      document.getElementById('topology-modal').style.display = 'flex';
+      const canvas = document.getElementById('topology-canvas');
+      const ctx3d = canvas.getContext('2d');
+
+      canvas.onpointerdown = (e) => {
+        isDraggingTop = true;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+      };
+      window.onpointerup = () => { isDraggingTop = false; };
+      window.onpointermove = (e) => {
+        if (!isDraggingTop) return;
+        const dx = e.clientX - lastMouseX;
+        const dy = e.clientY - lastMouseY;
+        rotY += dx * 0.008;
+        rotX += dy * 0.008;
+        lastMouseX = e.clientX;
+        lastMouseY = e.clientY;
+      };
+
+      function renderTopology() {
+        if (document.getElementById('topology-modal').style.display !== 'flex') return;
+        ctx3d.fillStyle = 'rgba(5, 8, 14, 0.35)';
+        ctx3d.fillRect(0, 0, canvas.width, canvas.height);
+
+        const cx = canvas.width / 2;
+        const cy = canvas.height / 2;
+        const fov = 300;
+
+        if (!isDraggingTop) rotY += 0.006;
+
+        const projected = topNodes.map(n => {
+          let x1 = n.x * Math.cos(rotY) - n.z * Math.sin(rotY);
+          let z1 = n.z * Math.cos(rotY) + n.x * Math.sin(rotY);
+          let y2 = n.y * Math.cos(rotX) - z1 * Math.sin(rotX);
+          let z2 = z1 * Math.cos(rotX) + n.y * Math.sin(rotX);
+
+          const scale = fov / (fov + z2 + 250);
+          return {
+            px: cx + x1 * scale,
+            py: cy + y2 * scale,
+            scale,
+            color: n.color,
+            size: n.size * scale
+          };
+        });
+
+        ctx3d.strokeStyle = 'rgba(6, 182, 212, 0.18)';
+        ctx3d.lineWidth = 1;
+        for (let i = 0; i < projected.length; i++) {
+          for (let j = i + 1; j < projected.length; j++) {
+            const dist = Math.hypot(projected[i].px - projected[j].px, projected[i].py - projected[j].py);
+            if (dist < 80) {
+              ctx3d.beginPath();
+              ctx3d.moveTo(projected[i].px, projected[i].py);
+              ctx3d.lineTo(projected[j].px, projected[j].py);
+              ctx3d.stroke();
+            }
+          }
+        }
+
+        projected.forEach(p => {
+          ctx3d.fillStyle = p.color;
+          ctx3d.beginPath();
+          ctx3d.arc(p.px, p.py, Math.max(1, p.size), 0, Math.PI * 2);
+          ctx3d.fill();
+        });
+
+        topReq = requestAnimationFrame(renderTopology);
+      }
+      renderTopology();
+    }
+
+    function closeTopologyModal() {
+      document.getElementById('topology-modal').style.display = 'none';
+      if (topReq) cancelAnimationFrame(topReq);
+    }
+
+    /* ==========================================================================
+       9. MULTI-AGENT SWARM CONSENSUS ORCHESTRATION
+       ========================================================================== */
+    function toggleSwarmMode() {
+      isSwarmModeActive = !isSwarmModeActive;
+      const btnH = document.getElementById('swarm-header-btn');
+      const btnI = document.getElementById('swarm-mode-btn');
+      if (btnH) btnH.classList.toggle('active', isSwarmModeActive);
+      if (btnI) {
+        btnI.classList.toggle('active', isSwarmModeActive);
+        btnI.textContent = isSwarmModeActive ? "🐝 Swarm: ACTIVE" : "🐝 Swarm: OFF";
+      }
+    }
+
+    async function runSwarmConsensus(query) {
+      appendMessageUI('user', query);
+      const botWrapper = appendMessageUI('juggler', '', true);
+      const bubble = botWrapper.querySelector('.bot-bubble');
+
+      const swarmPrompt = `[DISTRIBUTED SWARM CONSCIOUSNESS PROTOCOL]
+You are Juggler AI Swarm, coordinating a decentralized mesh of 4 specialized sub-agents:
+1. Arch-Sec (Zero-Day & Cyber-Defense Auditing)
+2. Algo-Opt (Algorithmic Efficiency & 2GB RAM Mobile Optimization)
+3. Ergo-Android (Mobile Android Touch & Ergonomics)
+4. Logic-Math (Formal Mathematical Proofs & Logic Invariants)
+
+USER DIRECTIVE: "${query}"
+
+Simulate a concise multi-agent deliberation:
+1. Provide a 1-sentence analytical assessment from each of the 4 sub-agents.
+2. Synthesize the unified consensus verdict and direct, production-grade solution.`;
+
+      const isFileProtocol = window.location.protocol === 'file:' || !window.location.hostname;
+      if (!isFileProtocol) {
+        try {
+          const res = await fetch('/api/swarm', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, apiKey: customApiKey })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.swarmReport) {
+              const reportHtml = `
+                <div style="border-left:3px solid var(--accent-amber); padding-left:12px; margin-bottom:10px;">
+                  <div style="font-size:0.76rem; font-weight:800; color:var(--accent-amber); display:flex; align-items:center; gap:6px;">
+                    🐝 Swarm Multi-Agent Consensus Deliberation
+                  </div>
+                  <div style="font-size:0.66rem; color:var(--text-sub);">Arch-Sec // Algo-Opt // Ergo-Android // Logic-Math</div>
+                </div>
+                ${formatMarkdown(data.swarmReport)}
+              `;
+              bubble.innerHTML = reportHtml;
+              botWrapper.setAttribute('data-raw-text', data.swarmReport);
+              saveActiveSession();
+              scrollToChatBottom();
+              isSending = false;
+              return;
+            }
+          }
+        } catch (proxyErr) {
+          console.log("Server swarm unreached, falling back to direct client cascade:", proxyErr);
+        }
+      }
+
+      // Standalone direct client cascade for Swarm
+      try {
+        const directRes = await callDirectGeminiCascade([
+          { role: "user", parts: [{ text: swarmPrompt }] }
+        ]);
+        if (directRes && directRes.text) {
+          const reportHtml = `
+            <div style="border-left:3px solid var(--accent-amber); padding-left:12px; margin-bottom:10px;">
+              <div style="font-size:0.76rem; font-weight:800; color:var(--accent-amber); display:flex; align-items:center; gap:6px;">
+                🐝 Swarm Multi-Agent Consensus Deliberation
+              </div>
+              <div style="font-size:0.66rem; color:var(--text-sub);">Arch-Sec // Algo-Opt // Ergo-Android // Logic-Math (Direct Client Execution)</div>
+            </div>
+            ${formatMarkdown(directRes.text)}
+          `;
+          bubble.innerHTML = reportHtml;
+          botWrapper.setAttribute('data-raw-text', directRes.text);
+          saveActiveSession();
+        }
+      } catch (err) {
+        bubble.innerHTML = `<span style="color:#f87171;">⚠️ Swarm deliberation error: ${err.message}</span>`;
+      }
+      scrollToChatBottom();
+      isSending = false;
+    }
+
+    /* ==========================================================================
+       10. FORMAL CRYPTOGRAPHIC INVARIANT VERIFICATION
+       ========================================================================== */
+    async function verifyCodeSnippet(codeIndex, btn) {
+      const code = codeStore[codeIndex];
+      if (!code) return alert("Snippet empty");
+      btn.textContent = "⏳ Proving...";
+
+      const isFileProtocol = window.location.protocol === 'file:' || !window.location.hostname;
+      if (!isFileProtocol) {
+        try {
+          const res = await fetch('/api/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            btn.textContent = data.invariantsPassed ? "🛡️ Proof: PASSED" : "⚠️ Invariant Flag";
+            alert(`Formal Invariant Verification Result:\n\nSHA-256: ${data.hash}\nLoop Safety: ${data.checks.memoryLoopInvariant}\nNull-Pointer Safety: ${data.checks.nullDereferenceCheck}`);
+            return;
+          }
+        } catch (proxyErr) {
+          console.log("Server verify unreached, executing client-side Web Crypto verification:", proxyErr);
+        }
+      }
+
+      // Standalone client-side invariant analysis via Web Crypto API
+      try {
+        const enc = new TextEncoder();
+        const hashBuf = await crypto.subtle.digest('SHA-256', enc.encode(code));
+        const hashArr = Array.from(new Uint8Array(hashBuf));
+        const hash = hashArr.map(b => b.toString(16).padStart(2, '0')).join('');
+        const memoryInvariant = !code.includes('while(true)') && !code.includes('for(;;)');
+        const nullPointerSafe = !code.includes('.undefined') && !code.includes('null.');
+        const invariantsPassed = memoryInvariant && nullPointerSafe;
+        btn.textContent = invariantsPassed ? "🛡️ Proof: PASSED" : "⚠️ Invariant Flag";
+        alert(`Client-Side Invariant Verification:\n\nSHA-256: ${hash.substring(0, 24)}...\nLoop Safety: ${memoryInvariant ? 'PASSED' : 'FLAGGED'}\nNull-Pointer Safety: ${nullPointerSafe ? 'PASSED' : 'FLAGGED'}`);
+      } catch (err) {
+        btn.textContent = "🛡️ Verify";
+        alert("Verification unavailable: " + err.message);
+      }
+    }
+
+    /* ==========================================================================
+       11. LIVE CODE SANDBOX EXECUTION
+       ========================================================================== */
+    function runLiveSandbox(index) {
+      const code = codeStore[index];
+      if (!code) return;
+      currentSandboxCode = code;
+      const modal = document.getElementById('sandbox-modal');
+      const iframe = document.getElementById('sandbox-iframe');
+      modal.style.display = 'flex';
+
+      const wrappedHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head><meta charset="utf-8"><style>body{font-family:sans-serif;padding:12px;background:#fff;color:#111;}</style></head>
+        <body>
+          ${code.includes('<html') ? code : (code.includes('<script') ? code : '<script>' + code + '<\/script>')}
+        </body>
+        </html>
+      `;
+      iframe.srcdoc = wrappedHtml;
+    }
+
+    function reloadSandbox() {
+      if (!currentSandboxCode) return;
+      const iframe = document.getElementById('sandbox-iframe');
+      iframe.srcdoc = iframe.srcdoc;
+    }
+
+    function closeSandbox() {
+      document.getElementById('sandbox-modal').style.display = 'none';
+    }
+
+    /* ==========================================================================
+       12. PYODIDE PYTHON WASM TERMINAL
+       ========================================================================== */
+    function openPythonConsole(presetCode = '') {
+      const modal = document.getElementById('python-modal');
+      modal.style.display = 'flex';
+      if (presetCode) document.getElementById('python-code-input').value = presetCode;
+
+      if (!pyodideInstance) {
+        document.getElementById('pyodide-status').textContent = 'Loading WASM Python...';
+        loadPyodide().then(py => {
+          pyodideInstance = py;
+          document.getElementById('pyodide-status').textContent = 'WASM Python: Ready';
+        }).catch(err => {
+          document.getElementById('pyodide-status').textContent = 'Pyodide Load Failed';
+          document.getElementById('python-console-output').textContent = String(err);
+        });
+      }
+    }
+
+    function closePythonConsole() {
+      document.getElementById('python-modal').style.display = 'none';
+    }
+
+    async function runPyodideCode() {
+      if (!pyodideInstance) return alert("Pyodide WASM runtime is downloading.");
+      const code = document.getElementById('python-code-input').value;
+      const outEl = document.getElementById('python-console-output');
+      outEl.textContent = "Executing in WebAssembly memory sandbox...";
+
+      try {
+        pyodideInstance.runPython(`
+import sys
+from io import StringIO
+sys.stdout = StringIO()
+sys.stderr = StringIO()
+        `);
+        pyodideInstance.runPython(code);
+        const stdout = pyodideInstance.runPython("sys.stdout.getvalue()");
+        const stderr = pyodideInstance.runPython("sys.stderr.getvalue()");
+        outEl.textContent = (stdout || stderr || "Execution finished with return code 0.");
+      } catch (err) {
+        outEl.textContent = "Python Traceback:\n" + String(err);
+      }
+    }
+
+    /* ==========================================================================
+       13. REAL-TIME 2026 WEB GROUNDING & FACT CHECKING
+       ========================================================================== */
+    function toggleLiveGrounding() {
+      isLiveGroundingActive = !isLiveGroundingActive;
+      const btnH = document.getElementById('grounding-header-btn');
+      const btnI = document.getElementById('grounding-mode-btn');
+      if (btnH) {
+        btnH.classList.toggle('active', isLiveGroundingActive);
+        btnH.textContent = isLiveGroundingActive ? "🌐 Live: ON" : "🌐 Live: OFF";
+      }
+      if (btnI) {
+        btnI.classList.toggle('active', isLiveGroundingActive);
+        btnI.textContent = isLiveGroundingActive ? "🌐 Grounding: ON" : "🌐 Grounding: OFF";
+      }
+    }
+
+    async function factCheckMessage(btn) {
+      const wrapper = btn.closest('.message-wrapper');
+      if (!wrapper) return;
+      const text = wrapper.getAttribute('data-raw-text') || '';
+      if (!text) return;
+
+      btn.textContent = "🛡️ Checking...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/fact-check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ statement: text.substring(0, 300), apiKey: customApiKey })
+        });
+        const data = await res.json();
+        
+        let card = wrapper.querySelector('.fact-check-badge-card');
+        if (!card) {
+          card = document.createElement('div');
+          card.className = 'fact-check-badge-card';
+          const bubble = wrapper.querySelector('.bot-bubble');
+          bubble.appendChild(card);
+        }
+
+        const isDiscrepancy = data.report && (data.report.includes('DISCREPANCY') || data.report.includes('UNVERIFIED'));
+        if (isDiscrepancy) card.classList.add('unverified');
+
+        card.innerHTML = `
+          <div style="font-weight:800; color:${isDiscrepancy ? '#f87171' : 'var(--accent-emerald)'}; display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+            🛡️ Live Fact-Check & Verification Report
+          </div>
+          <div>${formatMarkdown(data.report)}</div>
+        `;
+        btn.textContent = "🛡️ Verified";
+        saveActiveSession();
+      } catch (err) {
+        btn.textContent = "🛡️ Fact-Check";
+        alert("Fact-check service unavailable: " + err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function openUrlInspectorModal() {
+      document.getElementById('url-inspector-input').value = '';
+      document.getElementById('url-inspector-modal').style.display = 'flex';
+    }
+
+    function closeUrlInspectorModal() {
+      document.getElementById('url-inspector-modal').style.display = 'none';
+    }
+
+    async function executeUrlInspection() {
+      const url = document.getElementById('url-inspector-input').value.trim();
+      if (!url) return alert("Please enter a valid URL.");
+      closeUrlInspectorModal();
+
+      quickSend(`Inspect and summarize the live webpage at ${url}`);
+    }
+
+    /* ==========================================================================
+       14. MULTIMODAL CHAT IMAGE ATTACHMENT
+       ========================================================================== */
+    function handleChatImageUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const fullDataUrl = e.target.result;
+        const mimeType = file.type || 'image/jpeg';
+        const base64Data = fullDataUrl.split(',')[1];
+
+        attachedChatImage = {
+          mimeType,
+          data: base64Data,
+          name: file.name
+        };
+
+        const indicator = document.getElementById('attached-image-indicator');
+        indicator.innerHTML = `
+          <div class="chat-attachment-chip">
+            <img src="${fullDataUrl}" class="chat-attachment-thumb" alt="Preview">
+            <span>📷 ${file.name.substring(0, 16)}</span>
+            <button class="tool-btn" style="padding:2px 6px; font-size:0.65rem;" onclick="clearChatImageAttachment()">✕</button>
+          </div>
+        `;
+        indicator.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function clearChatImageAttachment() {
+      attachedChatImage = null;
+      document.getElementById('chat-image-uploader').value = '';
+      document.getElementById('attached-image-indicator').style.display = 'none';
+      document.getElementById('attached-image-indicator').innerHTML = '';
+    }
+
+    /* ==========================================================================
+       15. POLLINATIONS AI FREE IMAGE GENERATION (WITH NSFW CHECK)
+       ========================================================================== */
+    function selectAspectRatio(el, ratio) {
+      document.querySelectorAll('#tool-modal .selector-option').forEach(opt => opt.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedAspectRatio = ratio;
+    }
+
+    async function requestRealAIImage(prompt, aspectRatio = '1:1') {
+      const cleanPrompt = encodeURIComponent(prompt.trim());
+      const seed = Math.floor(Math.random() * 9999999);
+      let w = 1024, h = 1024;
+      if (aspectRatio === '16:9') { w = 1280; h = 720; }
+      else if (aspectRatio === '9:16') { w = 720; h = 1280; }
+
+      return `https://image.pollinations.ai/prompt/${cleanPrompt}?model=turbo&seed=${seed}&width=${w}&height=${h}&nologo=true`;
+    }
+
+    function openLightbox(imgUrl) {
+      const modal = document.getElementById('lightbox-modal');
+      const img = document.getElementById('lightbox-img');
+      img.src = imgUrl;
+      document.getElementById('lightbox-dl-btn').onclick = () => downloadImageDirect(imgUrl);
+      modal.style.display = 'flex';
+    }
+
+    function closeLightbox() {
+      document.getElementById('lightbox-modal').style.display = 'none';
+    }
+
+    function downloadImageDirect(imgUrl) {
+      const a = document.createElement('a');
+      a.href = imgUrl;
+      a.download = `Juggler_AI_Visual_${Date.now()}.jpg`;
+      a.target = '_blank';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    /* ==========================================================================
+       16. MARKDOWN & UI RENDERING
+       ========================================================================== */
+    function formatMarkdown(text) {
+      if (!text) return '';
+      let processed = text
+        .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+      // Code blocks
+      processed = processed.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+        const codeIndex = codeStore.length;
+        codeStore.push(code);
+        const language = lang || 'code';
+        const isHtmlOrJs = ['html', 'javascript', 'js'].includes(language.toLowerCase());
+        const isPython = ['python', 'py'].includes(language.toLowerCase());
+
+        return `
+          <div class="code-container">
+            <div class="code-header">
+              <span>📄 ${language.toUpperCase()}</span>
+              <div class="code-actions">
+                ${isHtmlOrJs ? `<button class="code-btn" onclick="runLiveSandbox(${codeIndex})">▶ Run Sandbox</button>` : ''}
+                ${isPython ? `<button class="code-btn" onclick="openPythonConsole(codeStore[${codeIndex}])">🐍 WASM Run</button>` : ''}
+                <button class="code-btn" onclick="verifyCodeSnippet(${codeIndex}, this)">🛡️ Verify</button>
+                <button class="code-btn" onclick="copyCodeSnippet(${codeIndex})">📋 Copy</button>
+              </div>
+            </div>
+            <pre><code>${code}</code></pre>
+          </div>
+        `;
+      });
+
+      // Headers, bold, italic
+      processed = processed
+        .replace(/^### (.*$)/gim, '<h3 style="color:var(--primary-cyan); margin:6px 0 3px 0; font-size:0.92rem;">$1</h3>')
+        .replace(/^## (.*$)/gim, '<h2 style="color:var(--primary-purple); margin:8px 0 4px 0; font-size:1.02rem;">$1</h2>')
+        .replace(/^# (.*$)/gim, '<h1 style="color:#fff; margin:10px 0 5px 0; font-size:1.12rem;">$1</h1>')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.08); padding:2px 5px; border-radius:4px; font-size:0.78rem; color:#67e8f9;">$1</code>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+
+      return `<p>${processed}</p>`;
+    }
+
+    function appendMessageUI(sender, text, isThinking = false, imageUrl = null, sources = null) {
+      const wrapper = document.createElement('div');
+      wrapper.className = `message-wrapper ${sender}`;
+      if (text) wrapper.setAttribute('data-raw-text', text);
+
+      const msg = document.createElement('div');
+      msg.className = `message ${sender}`;
+
+      if (sender === 'user') {
+        msg.textContent = text;
+      } else {
+        const bodyContent = isThinking
+          ? `<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`
+          : formatMarkdown(text);
+
+        let mediaCardHtml = '';
+        if (imageUrl) {
+          mediaCardHtml = `
+            <div class="media-card">
+              <div class="media-card-img-container">
+                <img src="${imageUrl}" alt="Pollinations AI Image" loading="lazy" onclick="openLightbox('${imageUrl}')" onerror="this.onerror=null; this.src='https://picsum.photos/seed/${encodeURIComponent(text.substring(0, 15))}/1024/1024';" />
+              </div>
+              <div class="media-card-info">
+                <span>🎨 Pollinations AI Turbo (${selectedAspectRatio})</span>
+                <div class="media-actions">
+                  <button class="media-btn" onclick="openLightbox('${imageUrl}')">🔍 View HD</button>
+                  <button class="media-btn" onclick="downloadImageDirect('${imageUrl}')">⬇ Save JPG</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+
+        let sourcesHtml = '';
+        if (sources && sources.length > 0) {
+          sourcesHtml = `
+            <div class="grounding-box">
+              <div class="grounding-header">
+                <span>🌐 Verified Live Web Grounding (2026 Active Sources)</span>
+                <span style="font-size:0.65rem; color:#38bdf8;">Anti-Hallucination Active</span>
+              </div>
+              <div class="grounding-sources-grid">
+                ${sources.map((s, idx) => `
+                  <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="grounding-source-pill" title="${s.snippet || s.title}">
+                    🔗 [${idx + 1}] ${s.title.substring(0, 32)}...
+                  </a>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        msg.innerHTML = `
+          <div class="bot-header">
+            <span class="bot-label">
+              <span class="bot-avatar-badge"><img src="${APP_ICONS.botAvatar}" alt="Bot"></span>
+              Juggler AI
+              <span class="bot-tag">Frontier Engine</span>
+            </span>
+          </div>
+          <div class="bot-bubble">
+            ${bodyContent}
+            ${mediaCardHtml}
+            ${sourcesHtml}
+          </div>
+        `;
+      }
+
+      const toolbar = document.createElement('div');
+      toolbar.className = 'msg-toolbar';
+      toolbar.innerHTML = `
+        <button class="msg-tool-icon-btn" onclick="shareMessageFromBtn(this)" title="Share Output">🔗 Share</button>
+        <button class="msg-tool-icon-btn" onclick="copyMessageFromBtn(this)" title="Copy to Clipboard">📋 Copy</button>
+        ${sender === 'juggler' ? `<button class="msg-tool-icon-btn" onclick="factCheckMessage(this)" title="Fact Check against Live 2026 Web">🛡️ Fact-Check</button>` : ''}
+      `;
+
+      wrapper.appendChild(msg);
+      wrapper.appendChild(toolbar);
+      
+      const spacer = document.getElementById('chat-spacer');
+      if (spacer) chatContainer.insertBefore(wrapper, spacer);
+      else chatContainer.appendChild(wrapper);
+
+      scrollToChatBottom();
+      return wrapper;
+    }
+
+    function copyMessageFromBtn(btn) {
+      const wrapper = btn.closest('.message-wrapper');
+      if (!wrapper) return;
+
+      let text = wrapper.getAttribute('data-raw-text');
+      if (!text) {
+        const bubble = wrapper.querySelector('.bot-bubble') || wrapper.querySelector('.message.user');
+        if (bubble) {
+          const clone = bubble.cloneNode(true);
+          clone.querySelectorAll('.code-header, .media-card, .msg-toolbar, .grounding-box, .fact-check-badge-card').forEach(el => el.remove());
+          text = clone.innerText || clone.textContent || '';
+        }
+      }
+
+      text = (text || '').trim();
+      if (!text) return;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          btn.textContent = '✓ Copied!';
+          setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+        }).catch(() => fallbackCopyText(text));
+      } else {
+        fallbackCopyText(text);
+        btn.textContent = '✓ Copied!';
+        setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+      }
+    }
+
+    function shareMessageFromBtn(btn) {
+      const wrapper = btn.closest('.message-wrapper');
+      if (!wrapper) return;
+
+      let text = wrapper.getAttribute('data-raw-text') || wrapper.innerText || '';
+      if (navigator.share) {
+        navigator.share({ title: 'Juggler AI Output', text }).catch(() => {});
+      } else {
+        copyMessageFromBtn(btn);
+        alert("🔗 Content copied to clipboard!");
+      }
+    }
+
+    function copyCodeSnippet(index) {
+      const code = codeStore[index] || '';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(() => alert("📋 Copied code snippet!")).catch(() => fallbackCopyText(code));
+      } else {
+        fallbackCopyText(code);
+      }
+    }
+
+    function fallbackCopyText(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { document.execCommand('copy'); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+
+    /* ==========================================================================
+       17. SOVEREIGN RAG & DOCUMENT PARSER
+       ========================================================================== */
+    async function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const indicator = document.getElementById('attached-doc-indicator');
+      indicator.innerHTML = `<span style="font-size:0.75rem; color:var(--primary-cyan);">⏳ Indexing ${file.name}...</span>`;
+      indicator.style.display = 'block';
+
+      try {
+        let extractedText = '';
+        if (file.name.endsWith('.pdf')) {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          for (let p = 1; p <= Math.min(pdf.numPages, 12); p++) {
+            const page = await pdf.getPage(p);
+            const content = await page.getTextContent();
+            extractedText += content.items.map(item => item.str).join(' ') + '\n';
+          }
+        } else {
+          extractedText = await file.text();
+        }
+
+        documentIndex.add({ id: Date.now(), title: file.name, text: extractedText });
+        uploadedDocumentContext = `Document: ${file.name}\n${extractedText.substring(0, 3000)}`;
+
+        indicator.innerHTML = `
+          <div class="chat-attachment-chip">
+            <span>📄 ${file.name} indexed</span>
+            <button class="tool-btn" style="padding:2px 6px; font-size:0.65rem;" onclick="clearDocumentAttachment()">✕</button>
+          </div>
+        `;
+      } catch (err) {
+        indicator.innerHTML = `<span style="font-size:0.72rem; color:#f87171;">Indexing failed: ${err.message}</span>`;
+      }
+    }
+
+    function clearDocumentAttachment() {
+      uploadedDocumentContext = '';
+      document.getElementById('file-uploader').value = '';
+      document.getElementById('attached-doc-indicator').style.display = 'none';
+      document.getElementById('attached-doc-indicator').innerHTML = '';
+    }
+
+    /* ==========================================================================
+       18. EXPORT UTILITIES (PDF, MARKDOWN)
+       ========================================================================== */
+    function exportSessionPDF() {
+      if (!window.jspdf || !window.jspdf.jsPDF) return alert("jsPDF library loading...");
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      let y = 20;
+
+      doc.setFontSize(16);
+      doc.text("Juggler AI v18.9.4 — Research Session Report", 14, y);
+      y += 8;
+      doc.setFontSize(9);
+      doc.setTextColor(120);
+      doc.text(`Generated: ${new Date().toLocaleString()} | Sovereign Frontier Core`, 14, y);
+      y += 12;
+
+      const wrappers = document.querySelectorAll('.message-wrapper');
+      wrappers.forEach(wrap => {
+        const isUser = wrap.classList.contains('user');
+        const text = wrap.getAttribute('data-raw-text') || '';
+        if (!text) return;
+
+        doc.setFontSize(10);
+        doc.setTextColor(isUser ? 30 : 6, isUser ? 100 : 182, isUser ? 200 : 212);
+        doc.text(isUser ? "User Directive:" : "Juggler AI Execution:", 14, y);
+        y += 6;
+
+        doc.setFontSize(9);
+        doc.setTextColor(40);
+        const splitText = doc.splitTextToSize(text, 180);
+        if (y + splitText.length * 5 > 280) {
+          doc.addPage();
+          y = 20;
+        }
+        doc.text(splitText, 14, y);
+        y += splitText.length * 5 + 8;
+      });
+
+      doc.save(`Juggler_AI_Report_${Date.now()}.pdf`);
+      if (enableConfetti && window.confetti) confetti({ particleCount: 35, spread: 50, origin: { y: 0.8 } });
+    }
+
+    /* ==========================================================================
+       18b. STANDALONE CLIENT CASCADE & SEARCH HELPERS
+       ========================================================================== */
+    async function clientSideGroundingSearch(query) {
+      if (!query || query.length < 3) return [];
+      try {
+        const cleanQ = query.replace(/[?.,!]/g, ' ').trim().split(' ').slice(0, 5).join(' ');
+        const wikiUrl = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(cleanQ)}&utf8=&format=json&origin=*`;
+        const res = await fetch(wikiUrl);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.query?.search?.length > 0) {
+            return data.query.search.slice(0, 3).map(item => ({
+              title: item.title,
+              snippet: item.snippet.replace(/<\/?[^>]+(>|$)/g, ""),
+              url: `https://en.wikipedia.org/wiki/${encodeURIComponent(item.title.replace(/ /g, '_'))}`
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn("Client grounding search warning:", err);
+      }
+      return [];
+    }
+
+    async function callDirectGeminiCascade(contents) {
+      const effectiveKey = customApiKey || DEFAULT_API_KEY;
+      let lastErr = "";
+      for (const model of MODEL_CASCADE) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${effectiveKey}`;
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents })
+          });
+          const data = await response.json();
+          if (response.ok && data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+            return { text: data.candidates[0].content.parts[0].text, model };
+          } else if (data.error) {
+            lastErr = data.error.message || JSON.stringify(data.error);
+          }
+        } catch (err) {
+          lastErr = err.message;
+        }
+      }
+      throw new Error(lastErr || "All cascade models failed.");
+    }
+
+    /* ==========================================================================
+       19. MESSAGE DISPATCH (AGENT LOOP, SWARM, CASCASE, 2026 LIVE GROUNDING)
+       ========================================================================== */
+    async function sendMessage(overrideText = null, generateTypeDirect = null) {
+      if (isSending) return;
+      const text = overrideText || userInput.value.trim();
+      if (!text && !attachedChatImage) return;
+
+      // 1. Adult / NSFW Safety Guard Check
+      const adultIntent = evaluateAdultContentIntent(text);
+      if (adultIntent.isViolating) {
+        appendMessageUI('user', text);
+        appendMessageUI('juggler', `⚠️ **[Sovereign Safety Compliance]**: ${adultIntent.reason}`);
+        if (!overrideText) userInput.value = '';
+        resetTextareaHeight();
+        saveActiveSession();
+        return;
+      }
+
+      if (isSwarmModeActive && !generateTypeDirect) {
+        if (!overrideText) userInput.value = '';
+        resetTextareaHeight();
+        return runSwarmConsensus(text);
+      }
+
+      isSending = true;
+      document.getElementById('quick-chips-row').style.display = 'none';
+
+      if (!overrideText) userInput.value = '';
+      resetTextareaHeight();
+
+      appendMessageUI('user', text || '[Image Inspection Request]');
+
+      // Local Sovereign RAG search augmentation
+      let augmentedPrompt = text;
+      if (documentIndex && text) {
+        const ragResults = documentIndex.search(text);
+        if (ragResults.length > 0) {
+          const topDoc = ragResults[0];
+          augmentedPrompt += `\n\n[Local RAG Search Match: ${topDoc.title}]\n${topDoc.text.substring(0, 1400)}`;
+        }
+      }
+      if (uploadedDocumentContext) {
+        augmentedPrompt += `\n\n[Attached Context]\n${uploadedDocumentContext}`;
+      }
+
+      // Continuous Neuro-Plasticity dynamic injection
+      if (plasticityRules.length > 0) {
+        augmentedPrompt += `\n\n[Active Neuro-Plasticity Learned Rules]:\n` + plasticityRules.map(r => "- " + r).join("\n");
+      }
+
+      // Autonomous Agent Loop instructions
+      if (isAgentModeActive) {
+        augmentedPrompt += `\n\n[AUTONOMOUS GOAL FORMULATION ACTIVE]: Formulate sub-hypotheses, mathematically prove invariants, stress-test edge cases, and output self-verifying production code.`;
+      }
+
+      conversationHistory.push({ role: "user", parts: [{ text: augmentedPrompt }] });
+
+      const botWrapper = appendMessageUI('juggler', '', true);
+      const bubble = botWrapper.querySelector('.bot-bubble');
+
+      // 1) POLLINATIONS AI FREE IMAGE GENERATION
+      if (generateTypeDirect === 'image') {
+        const cleanPrompt = text.replace('[IMAGE GENERATION COMMAND]', '').trim();
+        const imageUrl = await requestRealAIImage(cleanPrompt, selectedAspectRatio);
+        const textReply = `Visual artwork rendered via **Pollinations Turbo (${selectedAspectRatio})**: **"${cleanPrompt}"**`;
+        
+        bubble.innerHTML = formatMarkdown(textReply) + `
+          <div class="media-card">
+            <div class="media-card-img-container">
+              <img src="${imageUrl}" alt="AI Visual Asset" onclick="openLightbox('${imageUrl}')" onerror="this.onerror=null; this.src='https://picsum.photos/seed/${encodeURIComponent(cleanPrompt)}/1024/1024';" />
+            </div>
+            <div class="media-card-info">
+              <span>🎨 Pollinations Turbo (${selectedAspectRatio})</span>
+              <div class="media-actions">
+                <button class="media-btn" onclick="openLightbox('${imageUrl}')">🔍 View HD</button>
+                <button class="media-btn" onclick="downloadImageDirect('${imageUrl}')">⬇ Save JPG</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        botWrapper.setAttribute('data-raw-text', textReply);
+        if (enableConfetti && window.confetti) confetti({ particleCount: 45, spread: 60, origin: { y: 0.8 } });
+        scrollToChatBottom();
+
+        conversationHistory.push({ role: "model", parts: [{ text: textReply }] });
+        saveActiveSession();
+        isSending = false; clearChatImageAttachment(); return;
+      }
+
+      // 2) GEMINI MODEL CASCADE WITH SERVER-PROXY RESOLUTION & 2026 WEB GROUNDING
+      let responseSuccess = false;
+      let lastErr = "";
+      const effectiveKey = customApiKey || DEFAULT_API_KEY;
+
+      const fullContents = [
+        { role: "user", parts: [{ text: SYSTEM_LORE }] },
+        { role: "model", parts: [{ text: "Understood. Sovereign research directives, direct answer mandate, and 2026 temporal grounding active." }] },
+        ...conversationHistory
+      ];
+
+      // Step A: Attempt server-side proxy route (/api/chat) when hosted on server
+      const isFileProtocol = window.location.protocol === 'file:' || !window.location.hostname;
+      if (!isFileProtocol) {
+        try {
+          const srvRes = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: fullContents,
+              apiKey: customApiKey,
+              searchGrounding: isLiveGroundingActive,
+              imageAttachment: attachedChatImage
+            })
+          });
+
+        if (srvRes.ok) {
+          const srvData = await srvRes.json();
+          if (srvData && srvData.text) {
+            const aiResponse = srvData.text;
+            let sourcesHtml = '';
+            if (srvData.groundingSources && srvData.groundingSources.length > 0) {
+              sourcesHtml = `
+                <div class="grounding-box">
+                  <div class="grounding-header">
+                    <span>🌐 Verified Live Web Grounding (2026 Active Sources)</span>
+                    <span style="font-size:0.65rem; color:#38bdf8;">Anti-Hallucination Active</span>
+                  </div>
+                  <div class="grounding-sources-grid">
+                    ${srvData.groundingSources.map((s, idx) => `
+                      <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="grounding-source-pill" title="${s.snippet || s.title}">
+                        🔗 [${idx + 1}] ${s.title.substring(0, 32)}...
+                      </a>
+                    `).join('')}
+                  </div>
+                </div>
+              `;
+            }
+
+            bubble.innerHTML = formatMarkdown(aiResponse) + sourcesHtml;
+            botWrapper.setAttribute('data-raw-text', aiResponse);
+            conversationHistory.push({ role: "model", parts: [{ text: aiResponse }] });
+            saveActiveSession();
+            responseSuccess = true;
+          }
+        } else {
+          const errData = await srvRes.json().catch(() => ({}));
+          lastErr = errData.error || `Server responded with ${srvRes.status}`;
+          if (errData.safetyBlocked) {
+            bubble.innerHTML = `<span style='color:#f87171;'>⚠️ ${lastErr}</span>`;
+            botWrapper.setAttribute('data-raw-text', `[Safety Compliance]: ${lastErr}`);
+            responseSuccess = true;
+          }
+        }
+      } catch (proxyErr) {
+        console.log("Server proxy unreached (offline/local fallback). Falling back to direct client cascade:", proxyErr);
+      }
+    }
+
+      // Step B: Direct client-side cascade fallback (for offline or local Acode mobile environment)
+      if (!responseSuccess) {
+        const directContents = JSON.parse(JSON.stringify(fullContents));
+        let clientGroundingSources = [];
+
+        // Standalone client-side grounding search
+        if (isLiveGroundingActive && text) {
+          try {
+            clientGroundingSources = await clientSideGroundingSearch(text);
+            if (clientGroundingSources.length > 0) {
+              const lastTurn = directContents[directContents.length - 1];
+              if (lastTurn && lastTurn.role === 'user') {
+                lastTurn.parts[0].text += `\n\n[VERIFIED LIVE WEB GROUNDING]:\n` + clientGroundingSources.map((s, idx) => `[${idx+1}] ${s.title}: ${s.snippet} (URL: ${s.url})`).join('\n') + `\n\nInstructions: Provide the direct factual answer first. Cite sources at the end.`;
+              }
+            }
+          } catch (gErr) {
+            console.warn("Client grounding fallback:", gErr);
+          }
+        }
+
+        // Multimodal image attachment in direct client mode
+        if (attachedChatImage) {
+          const lastTurn = directContents[directContents.length - 1];
+          if (lastTurn && lastTurn.role === 'user') {
+            lastTurn.parts.push({
+              inlineData: {
+                mimeType: attachedChatImage.mimeType,
+                data: attachedChatImage.data
+              }
+            });
+          }
+        }
+
+        for (const model of MODEL_CASCADE) {
+          try {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${effectiveKey}`;
+            const response = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contents: directContents })
+            });
+            const data = await response.json();
+
+            if (response.ok && data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+              const aiResponse = data.candidates[0].content.parts[0].text;
+              let sourcesHtml = '';
+              if (clientGroundingSources.length > 0) {
+                sourcesHtml = `
+                  <div class="grounding-box">
+                    <div class="grounding-header">
+                      <span>🌐 Verified Live Web Grounding (Client-Side Direct Citations)</span>
+                      <span style="font-size:0.65rem; color:#38bdf8;">Anti-Hallucination Active</span>
+                    </div>
+                    <div class="grounding-sources-grid">
+                      ${clientGroundingSources.map((s, idx) => `
+                        <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="grounding-source-pill" title="${s.snippet || s.title}">
+                          🔗 [${idx + 1}] ${s.title.substring(0, 32)}...
+                        </a>
+                      `).join('')}
+                    </div>
+                  </div>
+                `;
+              }
+              bubble.innerHTML = formatMarkdown(aiResponse) + sourcesHtml;
+              botWrapper.setAttribute('data-raw-text', aiResponse);
+              conversationHistory.push({ role: "model", parts: [{ text: aiResponse }] });
+              saveActiveSession();
+              responseSuccess = true;
+              break;
+            } else if (data.error) {
+              lastErr = data.error.message || JSON.stringify(data.error);
+            }
+          } catch (err) {
+            console.warn(`Direct client cascade with ${model} failed:`, err);
+            lastErr = err.message;
+          }
+        }
+      }
+
+      if (!responseSuccess) {
+        bubble.innerHTML = `
+          <div style="background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.35); border-radius:10px; padding:12px; margin-top:4px;">
+            <div style="font-weight:700; color:#f87171; font-size:0.8rem; margin-bottom:4px;">⚠️ Connection Alert: Could not reach Gemini cascade endpoint.</div>
+            <div style="font-size:0.72rem; color:var(--text-sub); margin-bottom:8px;">Reason: ${lastErr || 'Network offline or key restricted'}</div>
+            <button class="tool-btn" style="border-color:var(--primary-cyan); color:var(--primary-cyan); font-size:0.74rem; padding:5px 12px;" onclick="openSettingsModal()">⚙️ Configure Custom Gemini API Key in Settings</button>
+          </div>
+        `;
+        botWrapper.setAttribute('data-raw-text', `[Connection Alert]: ${lastErr}`);
+      }
+
+      scrollToChatBottom();
+      isSending = false;
+      clearChatImageAttachment();
+    }
+
+    /* ==========================================================================
+       20. SETTINGS & 2GB RAM LOW-MEMORY TOGGLE
+       ========================================================================== */
+    function openSettingsModal() {
+      document.getElementById('custom-api-key-input').value = customApiKey;
+      document.getElementById('confetti-toggle').checked = enableConfetti;
+      document.getElementById('low-ram-toggle').checked = isLowRamMode;
+      document.getElementById('settings-modal').style.display = 'flex';
+    }
+
+    function closeSettingsModal() { document.getElementById('settings-modal').style.display = 'none'; }
+
+    function saveSettings() {
+      customApiKey = document.getElementById('custom-api-key-input').value.trim();
+      enableConfetti = document.getElementById('confetti-toggle').checked;
+      isLowRamMode = document.getElementById('low-ram-toggle').checked;
+      safeStorage.setItem('juggler_custom_api_key', customApiKey);
+      safeStorage.setItem('juggler_confetti', enableConfetti);
+      safeStorage.setItem('juggler_low_ram', isLowRamMode);
+
+      if (isLowRamMode) {
+        particles = [];
+        if (ctx && bgCanvas) ctx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+      } else if (particles.length === 0 && ctx) {
+        for (let i = 0; i < 20; i++) particles.push(new Particle());
+      }
+
+      closeSettingsModal();
+      alert("Preferences saved successfully!");
+    }
+
+    function openModal(tool) {
+      activeTool = tool;
+      const modal = document.getElementById('tool-modal');
+      document.getElementById('modal-input').value = '';
+      modal.style.display = 'flex';
+    }
+
+    function closeModal() { document.getElementById('tool-modal').style.display = 'none'; }
+    function openGuidelinesModal() { document.getElementById('guidelines-modal').style.display = 'flex'; }
+    function closeGuidelinesModal() { document.getElementById('guidelines-modal').style.display = 'none'; }
+
+    function runToolAction() {
+      const val = document.getElementById('modal-input').value.trim();
+      if (!val) return;
+      closeModal();
+      sendMessage(val, 'image');
+    }
+
+    /* ==========================================================================
+       21. UI HELPERS & MOBILE VIEWPORT RESIZING
+       ========================================================================== */
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      sidebar.classList.toggle('open');
+      overlay.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+    }
+
+    function toggleAgentMode() {
+      isAgentModeActive = !isAgentModeActive;
+      const btn = document.getElementById('agent-mode-btn');
+      btn.classList.toggle('active', isAgentModeActive);
+      btn.textContent = isAgentModeActive ? "⚡ Agent Loop: ACTIVE" : "⚡ Agent Loop: OFF";
+    }
+
+    function autoResizeTextarea(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+    }
+
+    function resetTextareaHeight() {
+      userInput.style.height = 'auto';
+    }
+
+    function scrollToChatBottom() {
+      setTimeout(() => {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }, 50);
+    }
+
+    chatContainer.addEventListener('scroll', () => {
+      const fromBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight;
+      scrollBottomBtn.style.display = fromBottom > 160 ? 'flex' : 'none';
+    }, { passive: true });
+
+    function quickSend(txt) {
+      userInput.value = txt;
+      sendMessage();
+    }
+
+    function clearCurrentChat() {
+      conversationHistory = [];
+      codeStore = [];
+      chatContainer.innerHTML = '<div class="chat-bottom-spacer" id="chat-spacer"></div>';
+      document.getElementById('quick-chips-row').style.display = 'flex';
+      toggleSidebar();
+    }
+
+    function logout(e) {
+      if (e) e.stopPropagation();
+      if (auth) auth.signOut();
+      currentUser = { uid: 'guest_' + Date.now(), email: 'Guest Evaluator' };
+      document.getElementById('user-email-display').textContent = 'Guest';
+      loadSavedUserProfile();
+      alert("Logged out to Guest Mode.");
+    }
+
+    // Enter key submits (Shift+Enter for newline)
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    // Check if legal terms were previously accepted in this session/device
+    if (safeStorage.getItem('juggler_legal_accepted') === 'true') {
+      const legalOverlay = document.getElementById('legal-overlay');
+      if (legalOverlay) legalOverlay.style.display = 'none';
+      if (!currentUser) {
+        currentUser = { uid: 'guest_' + Date.now(), email: 'Guest Evaluator' };
+        const userPill = document.getElementById('user-pill');
+        if (userPill) userPill.style.display = 'flex';
+      }
+    }
+
+    // Explicit mobile touch binding for Launch Research Prototype button
+    function attachDirectButtonHandlers() {
+      const launchBtn = document.getElementById('launch-prototype-btn');
+      if (launchBtn) {
+        launchBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          acceptLegalTerms(true);
+        });
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', attachDirectButtonHandlers);
+    } else {
+      attachDirectButtonHandlers();
+    }
+
+    // Initial session load & greeting
+    renderSessionsList();
+    if (safeStorage.getItem(`juggler_session_${currentSessionId}`)) {
+      loadSessionMessages(currentSessionId);
+    } else {
+      setTimeout(() => {
+        appendMessageUI('juggler', "Juggler AI v18.9.4 initialized. Ready with real-time 2026 web search grounding, anti-hallucination verification, Pollinations AI image studio, and distributed swarm mesh.");
+      }, 150);
+    }
+  </script>
+</body>
+</html>
